@@ -56,7 +56,7 @@
 
 <aside id="rail">
   <h1>Corner plot 45 × 35.5 ft
-    <span>1,598 sq ft · shed 45 × 25 · gate in the frontage corner</span>
+    <span>1,598 sq ft · shed 45 × 25 · gate in the far corner, cross road right</span>
   </h1>
 
   <div class="grp">
@@ -64,23 +64,6 @@
     <div class="seg" id="seg-stage">
       <button data-k="stage" data-v="site" aria-pressed="true">Site planning</button>
       <button data-k="stage" data-v="built" aria-pressed="false">Shed built</button>
-    </div>
-  </div>
-
-  <div class="grp">
-    <p>Cross road (top view)</p>
-    <div class="seg" id="seg-cross">
-      <button data-k="cross" data-v="west" aria-pressed="true">Left side</button>
-      <button data-k="cross" data-v="east" aria-pressed="false">Right side</button>
-    </div>
-  </div>
-
-  <div class="grp">
-    <p>Gate on the 45 ft frontage</p>
-    <div class="seg" id="seg-gate">
-      <button data-k="gate" data-v="far" aria-pressed="true">Far corner</button>
-      <button data-k="gate" data-v="mid" aria-pressed="false">Mid frontage</button>
-      <button data-k="gate" data-v="near" aria-pressed="false">Junction corner</button>
     </div>
   </div>
 
@@ -122,7 +105,7 @@
     <div class="key"><i class="sw" style="background:#e2622a"></i>gate, truck bay, shutter</div>
   </div>
 
-  <p class="note">Long 45 ft side sits on the main road, short 35.5 ft side on the cross road, matching your sketch. Give me the surveyed dimensions and I'll refit.</p>
+  <p class="note">Long 45 ft side sits on the main road, short 35.5 ft side on the cross road to the right, matching your sketch. Give me the surveyed dimensions and I'll refit.</p>
 </aside>
 
 <div id="hint">Drag to orbit · scroll to zoom · right-drag to pan</div>
@@ -145,7 +128,7 @@ const SZ0 = Z0 + YARD, SZ1 = Z1;
 const RIDGE_Z = (SZ0 + SZ1) / 2;
 
 /* ================= params ================= */
-const P = { stage:'site', cross:'west', gate:'far' };
+const P = { stage:'site', cross:'east', gate:'far' };
 
 /* which end of the frontage the gate sits at, in unmirrored coords.
    cross road is drawn on the west (X0) side; 'far' = away from it = east. */
