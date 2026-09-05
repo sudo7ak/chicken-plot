@@ -3,20 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Corner plot 45 × 35.5 — shed layout</title>
+<title>Nagpur poultry unit — site, shed and business plan</title>
 <style>
   :root{
-    --paper:#e8e3d8; --steel:#1b1f25; --line:#39414b;
-    --orange:#e2622a; --muted:#8b9099;
+    --paper:#e8e3d8; --steel:#1b1f25; --panel:#0d1014; --line:#39414b;
+    --orange:#e2622a; --muted:#8b9099; --green:#57a08a; --red:#c9584a;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{background:var(--steel);color:var(--paper);
-    font:15px/1.5 ui-sans-serif,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    -webkit-text-size-adjust:100%;
+    font:15px/1.55 ui-sans-serif,"Helvetica Neue",Helvetica,Arial,sans-serif;
     -webkit-font-smoothing:antialiased;overflow:hidden}
-  #stage{position:fixed;inset:0}
-  canvas{display:block}
-  #rail{position:fixed;left:0;top:0;bottom:0;width:272px;
+
+  /* ---- tab bar ---- */
+  #tabs{position:fixed;top:0;left:0;right:0;height:46px;z-index:30;
+    background:var(--panel);border-bottom:1px solid var(--line);
+    display:flex;align-items:stretch;gap:0;
+    overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+  #tabs::-webkit-scrollbar{display:none}
+  #tabs button{flex:none;white-space:nowrap}
+  #tabs button{background:transparent;border:0;border-bottom:2px solid transparent;
+    color:var(--muted);font:inherit;font-size:14px;padding:0 20px;cursor:pointer}
+  #tabs button[aria-selected="true"]{color:var(--paper);border-bottom-color:var(--orange)}
+  #tabs .mark{margin-left:auto;align-self:center;padding-right:18px;
+    color:var(--muted);font-size:12.5px}
+
+  /* ---- 3D tab ---- */
+  #stage{position:fixed;top:46px;left:0;right:0;bottom:0}
+  canvas{display:block;touch-action:none}
+  #rail{position:fixed;left:0;top:46px;bottom:0;width:272px;z-index:5;
     background:rgba(13,16,20,.92);border-right:1px solid var(--line);
     padding:18px 18px 24px;overflow-y:auto;backdrop-filter:blur(6px)}
   #rail h1{font-size:19px;font-weight:650;letter-spacing:-.01em;line-height:1.25}
@@ -34,26 +50,122 @@
   .views button{background:transparent;border:1px solid var(--line);color:var(--paper);
     font:inherit;font-size:12.5px;padding:6px 10px;border-radius:3px;cursor:pointer}
   .views button:hover{border-color:var(--orange)}
-  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
-  td{padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}
-  td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-  td.k{color:var(--muted)}
+  #rail table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+  #rail td{padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}
+  #rail td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  #rail td.k{color:var(--muted)}
   .key{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px}
   .sw{width:13px;height:13px;border-radius:2px;flex:none;border:1px solid rgba(0,0,0,.35)}
   .note{color:var(--muted);font-size:12px;line-height:1.45;margin-top:15px;
     border-top:1px solid var(--line);padding-top:12px}
+  #railtoggle{display:none;position:fixed;top:58px;left:12px;z-index:12;
+    background:var(--panel);color:var(--paper);border:1px solid var(--line);
+    border-radius:3px;font:inherit;font-size:13px;padding:8px 14px;
+    box-shadow:0 2px 10px rgba(0,0,0,.45)}
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:14px}
+  .tw table.tb{margin-bottom:0}
+  .swipe{display:none;color:var(--muted);font-size:11.5px;margin:0 0 5px}
+  .swipe.on{display:block}
   #hint{position:fixed;right:16px;bottom:14px;color:var(--muted);font-size:12.5px;
-    background:rgba(13,16,20,.7);padding:6px 10px;border-radius:3px}
-  button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
-  @media (max-width:820px){
-    #rail{width:100%;height:auto;bottom:auto;max-height:48%;border-right:0;border-bottom:1px solid var(--line)}
+    background:rgba(13,16,20,.7);padding:6px 10px;border-radius:3px;z-index:6}
+
+  /* ---- plan tab ---- */
+  #tab-plan,#tab-bird{position:fixed;top:46px;left:0;right:0;bottom:0;overflow-y:auto}
+  #tab-plan[hidden],#tab-bird[hidden]{display:none}
+  .fig{margin:14px 0 18px;padding:16px;background:var(--panel);border:1px solid var(--line)}
+  .fig svg{width:100%;height:auto;display:block}
+  .fig.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;padding:0;background:var(--line)}
+  .fig.grid3 div{background:var(--panel);padding:14px}
+  .fig.grid3 b{display:block;font-size:20px;font-weight:650;letter-spacing:-.02em}
+  .fig.grid3 span{display:block;color:var(--muted);font-size:12px;margin-top:3px;line-height:1.35}
+  .doc i{font-style:italic}
+  .doc{max-width:860px;margin:0 auto;padding:38px 26px 90px}
+  .ph h2{font-size:27px;font-weight:650;letter-spacing:-.02em;line-height:1.15}
+  .ph p{color:var(--muted);margin-top:6px;font-size:14.5px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin:26px 0 4px;
+    background:var(--line);border:1px solid var(--line)}
+  .stats div{background:var(--panel);padding:14px 14px 12px}
+  .stats b{display:block;font-size:22px;font-weight:650;font-variant-numeric:tabular-nums;
+    letter-spacing:-.02em}
+  .stats span{display:block;color:var(--muted);font-size:12px;margin-top:3px;line-height:1.3}
+  .doc h3{font-size:18px;font-weight:650;margin:38px 0 10px;letter-spacing:-.01em}
+  .doc h4{font-size:14.5px;font-weight:650;margin-bottom:8px}
+  .doc p{margin-bottom:12px;max-width:74ch}
+  .cap{color:var(--muted);font-size:13.5px}
+  .doc b{font-weight:650}
+  table.tb{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0 14px}
+  table.tb th{text-align:left;font-weight:650;color:var(--muted);font-size:12.5px;
+    padding:7px 10px 7px 0;border-bottom:1px solid var(--line)}
+  table.tb td{padding:8px 10px 8px 0;border-bottom:1px solid rgba(255,255,255,.08);
+    vertical-align:top}
+  table.tb td i{font-style:normal;color:var(--muted);font-size:12.5px}
+  table.tight td{padding:6px 0}
+  table.tight td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr.tot td{border-bottom:0;border-top:1px solid var(--line);font-weight:650;padding-top:9px}
+  tr.big td{font-size:17px}
+  table.grid td,table.grid th{text-align:right;font-variant-numeric:tabular-nums;padding:8px 10px}
+  table.grid td:first-child,table.grid th:first-child{text-align:left}
+  .pos{color:var(--green)} .neg{color:var(--red)}
+  .inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 20px;margin:16px 0 24px;
+    padding:18px;background:var(--panel);border:1px solid var(--line)}
+  .inputs label{display:block;font-size:12.5px;color:var(--muted)}
+  .inputs input{width:100%;accent-color:var(--orange);margin-top:5px}
+  .inputs output{display:block;color:var(--paper);font-size:15px;font-weight:650;
+    font-variant-numeric:tabular-nums;margin-top:1px}
+  .pl{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:8px}
+  .bars{margin-top:12px}
+  .bar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:5px}
+  .bar i{display:block;height:9px;background:var(--orange);border-radius:1px;flex:none}
+  .bar i.d2{background:#7f95a8} .bar i.d3{background:#5c6672} .bar i.d4{background:#3d4650}
+  ul.risks{margin:0 0 14px 18px;max-width:74ch}
+  ul.risks li{margin-bottom:9px}
+  .foot{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);
+    padding-top:14px;margin-top:34px}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+  @media (max-width:860px){
+    .stats,.fig.grid3{grid-template-columns:repeat(2,1fr)}
+    .inputs{grid-template-columns:repeat(2,1fr)}
+    .pl{grid-template-columns:1fr;gap:18px}
+    #rail{width:100%;bottom:auto;max-height:58%;border-right:0;
+      border-bottom:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.5)}
     #hint{display:none}
+    .doc{padding:26px 16px 80px}
+    .doc p{max-width:none}
+    .fig{overflow-x:auto;padding:12px}
+    .fig svg{min-width:560px}
+    .fig.grid3{overflow-x:visible}
+    .fig.grid3 svg{min-width:0}
+    .tw table.tb{min-width:520px}
+  }
+  @media (max-width:560px){
+    #tabs button{padding:0 13px;font-size:13.5px}
+    #tabs .mark{display:none}
+    .doc{padding:22px 13px 80px}
+    .ph h2{font-size:22px}
+    .ph p{font-size:13.5px}
+    .doc h3{font-size:16.5px;margin:30px 0 9px}
+    .stats{grid-template-columns:1fr 1fr}
+    .stats b{font-size:19px}
+    .inputs{grid-template-columns:1fr;gap:12px;padding:14px}
+    .fig.grid3{grid-template-columns:1fr}
+    table.tb{font-size:13px}
+    ul.risks{margin-left:16px}
+    #rail{padding:14px 14px 20px;max-height:62%}
   }
 </style>
 </head>
 <body>
-<div id="stage"></div>
 
+<nav id="tabs">
+  <button id="tb-site" aria-selected="true">Site &amp; shed</button>
+  <button id="tb-plan" aria-selected="false">Business plan</button>
+  <button id="tb-bird" aria-selected="false">Sonali guide</button>
+  <span class="mark">Nagpur · 1,598 sq ft · own plot</span>
+</nav>
+
+<section id="tab-site">
+  <div id="stage"></div>
 <aside id="rail">
   <h1>Corner plot 45 × 35.5 ft
     <span>1,598 sq ft · shed 45 × 25 · gate in the far corner, cross road right</span>
@@ -107,11 +219,630 @@
 
   <p class="note">Long 45 ft side sits on the main road, short 35.5 ft side on the cross road to the right, matching your sketch. Give me the surveyed dimensions and I'll refit.</p>
 </aside>
+  <button id="railtoggle" type="button">Controls</button>
+  <div id="hint">Drag to orbit · scroll to zoom · right-drag to pan</div>
+</section>
 
-<div id="hint">Drag to orbit · scroll to zoom · right-drag to pan</div>
+<section id="tab-plan" hidden>
+<div class="doc">
+
+  <header class="ph">
+    <h2>Sonali poultry unit — Nagpur</h2>
+    <p>850 birds · 45 × 25 ft shed · own plot, no rent · direct hatchery chicks · fogger-cooled</p>
+  </header>
+
+  <div class="stats">
+    <div><b id="s-birds">782</b><span>birds sold per cycle</span></div>
+    <div><b id="s-profit">₹25,200</b><span>profit per cycle</span></div>
+    <div><b id="s-be">₹166</b><span>break-even, ₹/kg live</span></div>
+    <div><b id="s-year">₹63,000</b><span>profit per year</span></div>
+  </div>
+
+  <h3>1. What the shed actually holds</h3>
+  <p>A Sonali bird finishing at 1.3–1.5 kg needs 1.2–1.5 sq ft of litter floor. Your 1,125 sq ft gives you a real ceiling of roughly <b>750 birds comfortable, 900 crowded</b>. At 850 you are on 1.32 sq ft a bird, which works only because the jali band runs the full perimeter and gives you cross-ventilation on all four sides.</p>
+  <p>Foggers change this, and they change it more in Nagpur than they would in a coastal town. Evaporative cooling works on dry heat, and Nagpur's worst weeks — April into early June — are dry, often under 25% humidity. A fogger line down the ridge with the jali open on all four sides can pull 6–8 °C off the shed at 3 pm. That is the difference between 6% mortality and 20%, and it is what makes 850 birds defensible on this floor rather than reckless.</p>
+  <p class="cap">Two things to get right, or the foggers work against you. Run them in cycles, not continuously — wet litter causes more coccidiosis than heat causes death. And they lose most of their effect once the monsoon sets in and humidity climbs past 70%, so your July–September batch still depends on airflow, not cooling. Budget a 1,000 L overhead tank and a 0.5 HP pump, and keep a spare nozzle set: a blocked line on a 45 °C afternoon costs you birds within hours.</p>
+
+  <h3>2. The cycle, week by week</h3>
+  <table class="tb">
+    <tr><th>Stage</th><th>Days</th><th>Feed</th><th>What matters</th></tr>
+    <tr><td>Brooding</td><td>0–21</td><td>Pre-starter / starter crumb, ~350 g a bird</td><td>32 °C down to 26 °C, chick guard, 24 h light week 1. Most of your mortality happens here or never.</td></tr>
+    <tr><td>Grower</td><td>22–70</td><td>Grower mash, ~1.6 kg a bird</td><td>Open the jali fully, spread the litter to 4 inches, deworm around day 45.</td></tr>
+    <tr><td>Finisher</td><td>71–105</td><td>Finisher, ~1.4 kg a bird</td><td>Weigh 20 birds every Sunday. The weekly weight curve is what tells you when to sell.</td></tr>
+    <tr><td>Stretch</td><td>106–120</td><td>~0.9 kg a bird for ~200 g gain</td><td>Marginal feed conversion collapses to about 5:1 here. Only worth it if the rate is climbing or a festival is close.</td></tr>
+    <tr><td>Clean-out</td><td>+14–21</td><td>—</td><td>Remove litter, wash, lime wash, rest the floor. Skipping this is how you inherit last batch's coccidiosis.</td></tr>
+  </table>
+  <p class="cap">This is the single most useful table here. Sonali reaches 1.1–1.2 kg on about 3 kg of feed by week 13–14. Everything after that costs you roughly a kilo of feed for 200 g of bird — at ₹34 feed and ₹190 live, that stretch earns about ₹4 a bird. Sell at 100–110 days unless the market is paying you to wait.</p>
+
+  <h3>3. Your numbers</h3>
+  <p>Move anything that doesn't match your quotes. Everything below recalculates.</p>
+
+  <div class="inputs">
+    <label>Chicks placed <input type="range" id="i-birds" min="500" max="1000" step="25" value="850"><output id="o-birds"></output></label>
+    <label>Chick cost, ₹ <input type="range" id="i-chick" min="15" max="45" step="1" value="25"><output id="o-chick"></output></label>
+    <label>Mortality, % <input type="range" id="i-mort" min="3" max="20" step="1" value="8"><output id="o-mort"></output></label>
+    <label>Sale weight, kg <input type="range" id="i-wt" min="1" max="1.8" step="0.05" value="1.35"><output id="o-wt"></output></label>
+    <label>Feed per bird, kg <input type="range" id="i-fpb" min="2.8" max="5" step="0.1" value="4"><output id="o-fpb"></output></label>
+    <label>Feed rate, ₹/kg <input type="range" id="i-frate" min="24" max="46" step="1" value="34"><output id="o-frate"></output></label>
+    <label>Live rate, ₹/kg <input type="range" id="i-price" min="150" max="340" step="5" value="300"><output id="o-price"></output></label>
+    <label>Helper, ₹/month <input type="range" id="i-lab" min="0" max="24000" step="1000" value="12000"><output id="o-lab"></output></label>
+    <label>Cycles per year <input type="range" id="i-cyc" min="1.5" max="3" step="0.1" value="2.5"><output id="o-cyc"></output></label>
+  </div>
+
+  <div class="pl">
+    <div class="pl-col">
+      <h4>Cost, one cycle</h4>
+      <table class="tb tight">
+        <tr><td>Chicks</td><td id="c-chick"></td></tr>
+        <tr><td>Feed <i id="c-feedkg"></i></td><td id="c-feed"></td></tr>
+        <tr><td>Helper <i id="c-labnote"></i></td><td id="c-lab"></td></tr>
+        <tr><td>Litter, husk</td><td>₹1,800</td></tr>
+        <tr><td>Vaccine, medicine</td><td>₹6,800</td></tr>
+        <tr><td>Brooding fuel, power</td><td>₹6,000</td></tr>
+        <tr><td>Transport, disinfectant, repairs</td><td>₹5,000</td></tr>
+        <tr class="tot"><td>Total</td><td id="c-total"></td></tr>
+      </table>
+      <div class="bars" id="bars"></div>
+    </div>
+    <div class="pl-col">
+      <h4>Return, one cycle</h4>
+      <table class="tb tight">
+        <tr><td>Birds sold</td><td id="r-birds"></td></tr>
+        <tr><td>Live weight sold</td><td id="r-kg"></td></tr>
+        <tr><td>Bird sales</td><td id="r-sales"></td></tr>
+        <tr><td>Manure, spent litter</td><td>₹3,000</td></tr>
+        <tr class="tot"><td>Revenue</td><td id="r-rev"></td></tr>
+        <tr class="tot big"><td>Profit</td><td id="r-profit"></td></tr>
+        <tr><td>Per bird</td><td id="r-perbird"></td></tr>
+        <tr><td>Cost per kg produced</td><td id="r-cpk"></td></tr>
+        <tr><td>Break-even live rate</td><td id="r-be"></td></tr>
+      </table>
+      <p class="cap" id="r-note"></p>
+    </div>
+  </div>
+
+  <h3>4. The helper is your second-biggest cost</h3>
+  <p>At ₹12,000 a month he costs ₹1.44 lakh a year — ₹57,600 a cycle, more than double what the chicks cost. Per bird that is about ₹74, against roughly ₹131 of feed. He is the second line on your cost sheet and he does not shrink when the shed sits empty between batches, which is why the model spreads his salary across all twelve months rather than the four you are growing.</p>
+  <p>Here is the uncomfortable arithmetic. Feeding, watering and cleaning after 850 birds is two to three hours of work a day. You are paying a full-time wage for part-time work, because 1,125 sq ft cannot hold enough birds to absorb a full-time salary. Three ways to fix it, in order of how well they work:</p>
+  <ul class="risks">
+    <li><b>Give him the selling, not just the feeding.</b> If he runs the gate sale and the delivery drops that move you from ₹190 to ₹300/kg, he generates about ₹1.16 lakh a cycle and pays for himself four times over. This is the only version where the salary is clearly a good decision.</li>
+    <li><b>Stagger two half-batches</b> three or four weeks apart. Same shed, same helper, but you always have birds ready to sell — which is also what makes weekly direct selling possible.</li>
+    <li><b>Part-time or shared.</b> Six to seven thousand a month for a morning-and-evening routine, with you covering the rest, roughly halves the burden while the operation is still finding its feet.</li>
+  </ul>
+  <p class="cap">Whichever you choose, keep him on the same batch from brooding to sale. Brooding is where most mortality is decided, and a helper who has seen a batch through learns to spot a sick bird days before a new one would.</p>
+
+  <h3>5. What breaks it</h3>
+  <p>Feed is about 60% of your cost, so the model lives or dies on two numbers: the feed rate and the live rate. Here is profit per cycle across the plausible range of both.</p>
+  <table class="tb grid" id="sens"></table>
+  <p class="cap">The bottom-left corner is where you lose money — cheap birds, dear feed. Note that the entire table is under water if you sell into the <b>broiler</b> channel at ₹110–130/kg. Sonali only works if the buyer is paying a desi or gavran rate. Confirm that buyer exists before you place a single chick.</p>
+
+  <h3>6. The ₹300 question</h3>
+  <p>₹300/kg is what a customer pays at a counter for a live gavran bird. It is not what a trader hands you at your gate for 780 birds at once. Across Maharashtra, gavran and country birds trade between ₹170 and ₹250/kg, with Sonali quoted at ₹300 in Mumbai, ₹250 around Aurangabad and ₹200 from Pune farms. Nagpur runs below Mumbai. So ₹300 is achievable — but as a <b>selling price you charge</b>, not a price you are offered.</p>
+  <p>The whole plan turns on which of these you actually operate. At 782 birds of 1.35 kg, that is 1,056 kg a cycle:</p>
+  <table class="tb">
+    <tr><th>Channel</th><th>₹/kg live</th><th>Per cycle</th><th>Profit</th><th>What it demands of you</th></tr>
+    <tr><td>Trader lifts the whole batch</td><td>190</td><td>₹2.01 L</td><td class="neg">−₹0.06 L</td><td>Nothing. One phone call, one payment, one day.</td></tr>
+    <tr><td>Live to local chicken shops</td><td>230</td><td>₹2.43 L</td><td>₹0.36 L</td><td>Your pickup, 3–4 drops a week, chasing payment</td></tr>
+    <tr><td>Live, direct to households at your gate</td><td>300</td><td>₹3.17 L</td><td>₹1.10 L</td><td>A name people know, weekend crowds, birds sold in 20s not 800s</td></tr>
+    <tr><td>Mixed: 60% trader, 40% direct</td><td>234</td><td>₹2.47 L</td><td>₹0.41 L</td><td>The realistic first year</td></tr>
+  </table>
+  <p class="cap">Profits above assume ₹25 chicks, ₹34 feed and a ₹12,000/month helper. Note the first row is now a loss: with a salaried helper on 850 birds, selling to a trader does not cover your costs. The gap between the first row and the third is roughly ₹1.16 lakh per cycle on identical birds, identical feed and identical work in the shed. Everything difficult about this business sits in that gap.</p>
+  <p>The catch on the ₹300 row is volume. Selling 780 birds direct means moving about 45 birds a week, every week, for four months — and your birds all mature in the same fortnight. Three ways people solve it: stagger placements two or three weeks apart so you always have sale-ready birds, hold a standing weekend sale at the gate, or sell 60% to a trader on day one and retail the rest over the following month while they keep gaining weight. The third is the easiest to start with and it is what the mixed row models.</p>
+  <p>Set the live-rate slider to 190 and then to 300 and watch the annual figure. That swing is your business plan.</p>
+
+  <h3>7. Adding eggs</h3>
+  <p>Sonali is dual-purpose — a hen lays 185–200 eggs a year — so eggs are genuinely on the table. But a layer occupies the shed for eighteen months instead of four, and you have 1,125 sq ft. Eggs and meat are not additive here. They compete for the same floor.</p>
+  <p>Desi eggs trade around ₹8.50 wholesale against ₹5.84 for commercial eggs in Maharashtra, and retail ₹8–15 depending on where you sell. That premium is the same perception premium that gets you ₹300/kg for the bird, and it comes from the same customers.</p>
+
+  <table class="tb">
+    <tr><th>Egg price</th><th>Margin per hen per year</th><th>Per sq ft per year</th><th>Against meat at ₹373/sq ft</th></tr>
+    <tr><td>₹8.50 wholesale</td><td>₹211</td><td>₹106</td><td class="neg">Far worse</td></tr>
+    <tr><td>₹10 direct</td><td>₹411</td><td>₹206</td><td class="neg">Worse</td></tr>
+    <tr><td>₹12 direct</td><td>₹678</td><td>₹339</td><td>About level</td></tr>
+    <tr><td>₹14 premium</td><td>₹945</td><td>₹472</td><td class="pos">Better</td></tr>
+  </table>
+  <p class="cap">A layer needs 2 sq ft against 1.32 for a grow-out bird, and she earns over eighteen months rather than four. Margin here is net of rearing the pullet to point of lay, thirteen months of layer feed, and credit for the spent hen at about ₹320 — a Sonali hen is still worth real money at the end, which a commercial layer is not.</p>
+
+  <table class="tb">
+    <tr><th>Option</th><th>Configuration</th><th>Annual profit after helper</th></tr>
+    <tr><td>A — all meat</td><td>850 birds, 2.5 cycles</td><td>₹2.76 L</td></tr>
+    <tr><td>B — all layer</td><td>560 hens at ₹10/egg</td><td class="neg">₹0.86 L</td></tr>
+    <tr><td>B — all layer</td><td>560 hens at ₹12/egg</td><td>₹2.36 L</td></tr>
+    <tr><td>C — split</td><td>150 hens + 620 meat birds, ₹12/egg</td><td>₹2.66 L</td></tr>
+  </table>
+  <p>On money alone, all meat wins. Switching the whole shed to layers costs you around ₹1.9 lakh a year unless you can hold ₹12 an egg, and going all-in on eggs also concentrates you in a market where a bird flu scare can flatten demand overnight.</p>
+
+  <h4>What eggs actually buy you</h4>
+  <p>The argument for a small layer flock is not margin. It is these three things.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Bird sales arrive in two months of the year, egg sales arrive every month">
+      <g fill="#8b9099" font-size="11.5">
+        <text x="60" y="42">Bird sales — income twice a year</text>
+        <text x="60" y="162">Egg sales — income every week</text>
+      </g>
+      <g fill="#39414b">
+        <rect x="60" y="122" width="595" height="1"/>
+        <rect x="60" y="200" width="595" height="1"/>
+      </g>
+      <g fill="#2f353d">
+        <rect x="60" y="108" width="38" height="14"/><rect x="110" y="108" width="38" height="14"/>
+        <rect x="160" y="108" width="38" height="14"/><rect x="210" y="108" width="38" height="14"/>
+        <rect x="310" y="108" width="38" height="14"/><rect x="360" y="108" width="38" height="14"/>
+        <rect x="410" y="108" width="38" height="14"/><rect x="460" y="108" width="38" height="14"/>
+        <rect x="560" y="108" width="38" height="14"/><rect x="610" y="108" width="38" height="14"/>
+      </g>
+      <g fill="#e2622a">
+        <rect x="260" y="52" width="38" height="70"/><rect x="510" y="52" width="38" height="70"/>
+      </g>
+      <g fill="#7f95a8">
+        <rect x="60" y="178" width="38" height="22"/><rect x="110" y="178" width="38" height="22"/>
+        <rect x="160" y="178" width="38" height="22"/><rect x="210" y="178" width="38" height="22"/>
+        <rect x="260" y="178" width="38" height="22"/><rect x="310" y="178" width="38" height="22"/>
+        <rect x="360" y="178" width="38" height="22"/><rect x="410" y="178" width="38" height="22"/>
+        <rect x="460" y="178" width="38" height="22"/><rect x="510" y="178" width="38" height="22"/>
+        <rect x="560" y="178" width="38" height="22"/><rect x="610" y="178" width="38" height="22"/>
+      </g>
+      <g fill="#8b9099" font-size="10.5" text-anchor="middle">
+        <text x="79" y="216">J</text><text x="129" y="216">F</text><text x="179" y="216">M</text>
+        <text x="229" y="216">A</text><text x="279" y="216">M</text><text x="329" y="216">J</text>
+        <text x="379" y="216">J</text><text x="429" y="216">A</text><text x="479" y="216">S</text>
+        <text x="529" y="216">O</text><text x="579" y="216">N</text><text x="629" y="216">D</text>
+      </g>
+      <text x="279" y="46" fill="#e2622a" font-size="10.5" text-anchor="middle">sale</text>
+      <text x="529" y="46" fill="#e2622a" font-size="10.5" text-anchor="middle">sale</text>
+    </svg>
+  </figure>
+
+  <ul class="risks">
+    <li><b>Cash every week instead of twice a year.</b> 150 hens at ₹12 an egg net roughly ₹8,500 a month, which covers most of the helper's salary and the feed bill between bird sales. On a meat-only farm you spend four months paying out before anything comes back.</li>
+    <li><b>Eggs build the customer list that makes ₹300/kg possible.</b> This is the real argument. A household that comes to your gate every week for a dozen desi eggs is exactly the household that will buy a bird at ₹300. Eggs are how you get 45 people in the habit of coming to you — and that habit is the thing standing between the ₹190 row and the ₹300 row in the previous section.</li>
+    <li><b>Two prices instead of one.</b> When the live rate softens, or Shravan takes meat buyers off the market for a month, eggs keep selling.</li>
+  </ul>
+
+  <h4>If you do it</h4>
+  <p>Start with 100–150 hens in a partitioned 300 sq ft at one end of the shed, and only if you are confident of ₹12 an egg direct. At wholesale rates it is not worth the floor space.</p>
+  <table class="tb">
+    <tr><th>What it needs</th><th>Detail</th></tr>
+    <tr><td>Solid partition</td><td>Full-height with its own door, ideally its own airspace. Layers and grow-out birds of different ages in one shed breaks all-in-all-out, which is your main disease defence. Plan the partition into the build rather than retrofitting it.</td></tr>
+    <tr><td>Nest boxes</td><td>One per 4–5 hens, placed in the darkest part of the pen, bedded and cleaned. Too few and you get floor eggs, which crack and go dirty.</td></tr>
+    <tr><td>Layer feed</td><td>Higher calcium from week 18. Feeding grower feed to layers gives thin shells and eventually bone problems.</td></tr>
+    <tr><td>Light</td><td>16 hours a day once laying starts, made up with a bulb in the early morning. Sonali will lay on natural daylight but production drops through the short winter days.</td></tr>
+    <tr><td>Pullets</td><td>Either buy at point of lay around ₹350–450, or rear from female chicks for about ₹290 with five months of no income. Rearing is cheaper; buying gets you laying inside a month.</td></tr>
+    <tr><td>Collection</td><td>Twice daily. An egg left on the floor overnight in the heat is a cracked or dirty egg, and a dirty desi egg does not fetch ₹12.</td></tr>
+  </table>
+  <p class="cap">One honest caution. Egg output is not flat: a hen peaks around 28–30 weeks and declines from there, and in a Nagpur May output can fall 20–30% from heat alone. Budget on 185 eggs a year, not the 200 the breed is credited with.</p>
+
+  <h3>8. Setup cost and payback</h3>
+  <table class="tb">
+    <tr><th>Item</th><th>Basis</th><th>Cost</th></tr>
+    <tr><td>Shed structure</td><td>2,525 sq ft work area @ ₹110–140</td><td>₹2.80–3.50 L</td></tr>
+    <tr><td>Cement wall, 3.5 ft</td><td>149 rft, ~520 sq ft</td><td>₹0.65–0.78 L</td></tr>
+    <tr><td>Concrete floor</td><td>1,125 sq ft PCC, rat-proof</td><td>₹0.85 L</td></tr>
+    <tr><td>Feeders, drinkers, brooder, fans, foggers, tank</td><td>850-bird kit</td><td>₹0.80 L</td></tr>
+    <tr class="tot"><td>Capital</td><td></td><td>₹5.10–5.93 L</td></tr>
+    <tr><td>Working capital</td><td>one cycle, recovered on sale</td><td>₹1.80 L</td></tr>
+  </table>
+  <p>Payback depends almost entirely on the channel, not on the build. At ₹190/kg to a trader the unit loses money every cycle and never pays back at all. At the mixed ₹234 it is around five and a half years. At ₹300 direct it is close to two years. The helper does not change the ranking of the channels, but he raises the price you must achieve for the build to be worth doing.</p>
+  <p><b>So the sequence matters: prove you can sell 40 birds a week at ₹300 before you spend ₹5 lakh on steel.</b> You can test that with 100 birds in a temporary enclosure on the same plot for under ₹30,000. If the demand is there, build the shed with confidence. If it isn't, you have learned it for the price of one month's feed instead of a building.</p>
+
+  <h3>9. The Nagpur calendar</h3>
+  <p>Two constraints shape your placement dates, and they pull in opposite directions.</p>
+  <p><b>Heat.</b> April to mid-June is the danger window. Birds in their last month during those weeks eat less, gain less and die more. A batch that broods in April is fine; a batch that finishes in May is not.</p>
+  <p><b>Demand.</b> Shravan takes a large share of Maharashtra's meat buyers off the market for a month, and Navratri does it again. Selling into either is selling into a soft rate. Winter months and the run-up to Diwali are your strong windows.</p>
+  <table class="tb">
+    <tr><th>Batch</th><th>Place</th><th>Sell</th><th>Read</th></tr>
+    <tr><td>1</td><td>Mid-September</td><td>Late December / January</td><td>Best batch of the year. Cool grow-out, strong winter rate.</td></tr>
+    <tr><td>2</td><td>Late January</td><td>Early May</td><td>Finishes into heat. Cut to 700 birds, run foggers, sell at 100 days rather than 120.</td></tr>
+    <tr><td>3</td><td>Late June</td><td>Mid-October</td><td>Monsoon brooding needs dry litter discipline. Time the sale after Navratri, into Diwali.</td></tr>
+  </table>
+  <p class="cap">Three batches is achievable but leaves only two to three weeks of clean-out between them. If a batch runs long or a disease scare forces a longer rest, drop to two and take the better rate instead.</p>
+
+  <h3>10. What kills batches</h3>
+  <ul class="risks">
+    <li><b>Heat stress.</b> Highest-probability, highest-cost risk on this site. Foggers, ridge ventilation, cool water, and feeding at night in May.</li>
+    <li><b>Coccidiosis and CRD.</b> Wet litter is the trigger. Fix leaking drinkers the same day. Keep litter under 25% moisture — if it clumps in your fist, it's too wet.</li>
+    <li><b>Ranikhet and Gumboro.</b> Non-negotiable vaccination schedule; get the exact one from the local Animal Husbandry office, since the challenge pattern is district-specific.</li>
+    <li><b>Rate collapse at sale.</b> You cannot store a live bird. Every extra week costs feed. Line up two buyers, not one.</li>
+    <li><b>Feed price spike.</b> Maize drives it. Buying a cycle's feed at placement fixes your biggest cost against a four-month window.</li>
+    <li><b>Dogs, mongoose, rats.</b> The 3 ft cement band plus buried mesh at the wall foot is your defence. This is why the wall matters more than it looks.</li>
+  </ul>
+
+  <h3>11. Before you place chicks</h3>
+  <ul class="risks">
+    <li>Confirm the buyer and the rate in writing, even informally. Everything above depends on this.</li>
+    <li>Gram Panchayat NOC for the poultry activity, and a check on local distance rules from habitation.</li>
+    <li>Registration with the District Animal Husbandry office; ask about state backyard-poultry and NABARD-linked subsidy schemes, which change year to year.</li>
+    <li>FSSAI registration if you will dress and sell meat yourself. It is inexpensive and it is what lets you charge retail rates.</li>
+    <li>A named hatchery for Sonali chicks with a delivery date, and a second one as backup.</li>
+    <li>Bore or municipal water tested for salinity. Bad water quietly wrecks growth.</li>
+  </ul>
+
+  <p class="foot">Prices here reflect Nagpur market reporting through mid-2026 and hatchery listings for Sonali. Feed and live rates move weekly — treat the model as a frame, and re-run it with quotes you have actually been given.</p>
+</div>
+</section>
+
+
+<section id="tab-bird" hidden>
+<div class="doc">
+
+  <header class="ph">
+    <h2>Raising Sonali</h2>
+    <p>A dual-purpose coloured bird — what it is, how to bring it to weight, and what will try to kill it</p>
+  </header>
+
+  <div class="stats">
+    <div><b>1.1–1.2 kg</b><span>at 13–14 weeks</span></div>
+    <div><b>2.9–3.2 kg</b><span>feed to that weight</span></div>
+    <div><b>1.2–1.5</b><span>sq ft floor per bird</span></div>
+    <div><b>6–8%</b><span>mortality, well managed</span></div>
+  </div>
+
+  <h3>1. What the bird is</h3>
+  <p>Sonali is a cross of a Rhode Island Red male with a Fayoumi female, developed in Bangladesh in 1986 and now common across eastern and central India. It looks and eats like a desi bird — multicoloured plumage, lean tight-fibred meat, deep yellow-yolked eggs — which is exactly why it sells at gavran rates rather than broiler rates.</p>
+  <p>It is dual-purpose: hens lay 185–200 eggs a year if kept. Adult males reach 1.8–2.0 kg, females 1.2–1.8 kg. For your purpose the bird is a meat bird sold at 1.2–1.5 kg, well before it matures.</p>
+  <p>Three properties matter for a Nagpur shed. It tolerates tropical heat better than a broiler. It forages and takes coarse feed, so a portion of the ration can be kitchen grain, greens or bran. And it is hardy — it will forgive management mistakes that would wipe out a broiler batch, which makes it a sensible first breed.</p>
+  <p class="cap">The trade-off is speed. A broiler hits 2 kg in 40 days; Sonali needs 100 days for 1.2 kg. You are not competing on efficiency. You are competing on what the meat sells for.</p>
+
+  <h3>2. Brooding — the first 21 days</h3>
+  <p>Most of your mortality is decided in these three weeks, and most of it comes down to temperature. Chicks cannot regulate their own body heat until about day 14. Too cold and they pile and smother; too hot and they dehydrate and stop eating.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Brooder temperature falling from 35 to 24 degrees over four weeks">
+      <g stroke="#39414b" stroke-width="1">
+        <line x1="60" y1="40" x2="660" y2="40"/>
+        <line x1="60" y1="82.5" x2="660" y2="82.5"/>
+        <line x1="60" y1="125" x2="660" y2="125"/>
+        <line x1="60" y1="167.5" x2="660" y2="167.5"/>
+        <line x1="60" y1="210" x2="660" y2="210"/>
+      </g>
+      <g fill="#8b9099" font-size="11" text-anchor="end">
+        <text x="52" y="44">36°</text><text x="52" y="86.5">32°</text>
+        <text x="52" y="129">28°</text><text x="52" y="171.5">24°</text>
+        <text x="52" y="214">20°</text>
+      </g>
+      <polygon points="60,50 160,82 260,114 360,136 460,168 560,189 660,189 660,210 60,210"
+               fill="#e2622a" opacity="0.13"/>
+      <polyline points="60,50 160,82 260,114 360,136 460,168 560,189 660,189"
+                fill="none" stroke="#e2622a" stroke-width="2.5"/>
+      <g fill="#e2622a">
+        <circle cx="60" cy="50" r="4"/><circle cx="160" cy="82" r="4"/>
+        <circle cx="260" cy="114" r="4"/><circle cx="360" cy="136" r="4"/>
+        <circle cx="460" cy="168" r="4"/>
+      </g>
+      <g fill="#e8e3d8" font-size="12" text-anchor="middle">
+        <text x="60" y="38">35°C</text><text x="160" y="72">32°</text>
+        <text x="260" y="104">29°</text><text x="360" y="126">27°</text>
+        <text x="470" y="158">24°</text>
+      </g>
+      <g fill="#8b9099" font-size="11.5" text-anchor="middle">
+        <text x="60" y="232">Day 1</text><text x="160" y="232">Week 1</text>
+        <text x="260" y="232">Week 2</text><text x="360" y="232">Week 3</text>
+        <text x="460" y="232">Week 4</text><text x="580" y="232">Week 5+</text>
+      </g>
+      <text x="580" y="182" fill="#8b9099" font-size="11.5" text-anchor="middle">shed temperature</text>
+      <g font-size="12">
+        <text x="60" y="266" fill="#e8e3d8" font-weight="600">Drop about 3°C a week. Then read the chicks, not the thermometer:</text>
+        <text x="60" y="286" fill="#8b9099">huddled under the lamp = cold · pressed to the walls, panting = hot · spread evenly and noisy = right</text>
+      </g>
+    </svg>
+  </figure>
+
+  <table class="tb">
+    <tr><th>Setting up</th><th>What to do</th></tr>
+    <tr><td>Before chicks arrive</td><td>Litter down 2–3 inches and dry, brooder run for 6 hours to pre-warm the floor, water put out 2 hours ahead so it isn't cold.</td></tr>
+    <tr><td>Chick guard</td><td>A ring about 4 ft across per 100 chicks, expanded daily, removed around day 7–10. It stops chicks straying from heat.</td></tr>
+    <tr><td>First drink</td><td>Plain water with glucose and electrolytes for the first 6–8 hours. Dip a few beaks in the drinker so the rest follow.</td></tr>
+    <tr><td>Light</td><td>23–24 hours for the first week, then reduce toward natural daylight by week 3.</td></tr>
+    <tr><td>Feeders and drinkers</td><td>Week 1 use flat trays and chick founts — 1 tray and 1 fount per 50 chicks. Move to round feeders and drinkers from week 2.</td></tr>
+    <tr><td>Space</td><td>0.25 sq ft a chick to week 2, then open up. Crowding at this stage causes pile-ups.</td></tr>
+  </table>
+  <p class="cap">Weigh 20 chicks on day 7. If the average is under 100 g, something is wrong with heat, water or feed access, and you still have time to fix it. That single weighing is the cheapest diagnostic you will ever run.</p>
+
+  <h3>3. Equipment per 850 birds</h3>
+  <figure class="fig grid3">
+    <div><b>1.32</b><span>sq ft floor a bird at 850 in your shed</span></div>
+    <div><b>26</b><span>feeders — one per 33 birds, never more than 40</span></div>
+    <div><b>21</b><span>drinkers — one per 40 birds, refilled twice daily</span></div>
+    <div><b>3.5 kg</b><span>water a bird over the cycle, roughly 2× feed intake</span></div>
+    <div><b>4 in</b><span>litter depth, topped up not replaced mid-cycle</span></div>
+    <div><b>1,000 L</b><span>overhead tank, one full day of buffer</span></div>
+  </figure>
+  <p class="cap">Feeder and drinker counts matter more than they look. Under-provide and the timid birds at the bottom of the pecking order never get enough, which shows up as an uneven batch — a spread of weights at sale rather than a tight one, and the small birds are pure loss.</p>
+
+  <h3>4. Feed programme</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 700 150" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Feed phases from pre-starter to finisher across 120 days">
+      <g>
+        <rect x="60" y="40" width="70" height="34" fill="#e2622a"/>
+        <rect x="130" y="40" width="140" height="34" fill="#c07a53"/>
+        <rect x="270" y="40" width="210" height="34" fill="#7f95a8"/>
+        <rect x="480" y="40" width="180" height="34" fill="#5c6672"/>
+      </g>
+      <g fill="#12140f" font-size="11.5" font-weight="600" text-anchor="middle">
+        <text x="95" y="62">Pre-starter</text>
+      </g>
+      <g fill="#e8e3d8" font-size="11.5" font-weight="600" text-anchor="middle">
+        <text x="200" y="62">Starter</text><text x="375" y="62">Grower</text>
+        <text x="570" y="62">Finisher</text>
+      </g>
+      <g fill="#8b9099" font-size="11" text-anchor="middle">
+        <text x="95" y="92">0–14 d</text><text x="200" y="92">15–42 d</text>
+        <text x="375" y="92">43–84 d</text><text x="570" y="92">85–120 d</text>
+        <text x="95" y="108">0.35 kg</text><text x="200" y="108">0.90 kg</text>
+        <text x="375" y="108">1.70 kg</text><text x="570" y="108">1.05 kg</text>
+        <text x="95" y="124">22% protein</text><text x="200" y="124">20%</text>
+        <text x="375" y="124">18%</text><text x="570" y="124">16%</text>
+      </g>
+      <text x="60" y="24" fill="#8b9099" font-size="11.5">Feed eaten per bird, cumulative 4.0 kg</text>
+    </svg>
+  </figure>
+  <p>Feed <i>ad lib</i> to week 6, then twice a day — early morning and late evening. In April and May shift the bulk of feeding to night, because a bird will not eat at 44 °C and you lose a week of growth to heat alone.</p>
+  <p>From week 8 Sonali will take up to 20–25% of its ration as coarse material without losing much growth: broken maize, rice bran, kitchen greens, azolla. On 850 birds that is a real saving on your largest cost. Change the ration gradually over 4–5 days — an abrupt switch causes a growth check and loose droppings.</p>
+
+  <h3>5. When the bird stops paying for its feed</h3>
+  <p>These two lines are the most important picture in this guide. They start together and separate around day 75. Everything after that point is the bird eating more than it is putting on.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 700 330" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Live weight and cumulative feed both plotted against age, diverging after day 75">
+      <rect x="535" y="40" width="75" height="210" fill="#e2622a" opacity="0.10"/>
+      <text x="572" y="34" fill="#e2622a" font-size="10.5" text-anchor="middle">sell window</text>
+      <g stroke="#39414b" stroke-width="1">
+        <line x1="60" y1="63" x2="660" y2="63"/>
+        <line x1="60" y1="110" x2="660" y2="110"/>
+        <line x1="60" y1="157" x2="660" y2="157"/>
+        <line x1="60" y1="203" x2="660" y2="203"/>
+        <line x1="60" y1="250" x2="660" y2="250"/>
+      </g>
+      <g fill="#8b9099" font-size="11" text-anchor="end">
+        <text x="52" y="67">4 kg</text><text x="52" y="114">3</text>
+        <text x="52" y="161">2</text><text x="52" y="207">1</text>
+        <text x="52" y="254">0</text>
+      </g>
+      <polyline points="60,249 165,234 270,210 360,180 435,147 510,115 585,91 660,63"
+                fill="none" stroke="#7f95a8" stroke-width="2.5"/>
+      <polyline points="60,248 165,234 270,221 360,210 435,203 510,196 585,193 660,187"
+                fill="none" stroke="#e2622a" stroke-width="2.5"/>
+      <g fill="#e2622a">
+        <circle cx="435" cy="203" r="4"/><circle cx="585" cy="193" r="4"/><circle cx="660" cy="187" r="4"/>
+      </g>
+      <g fill="#7f95a8">
+        <circle cx="435" cy="147" r="4"/><circle cx="585" cy="91" r="4"/><circle cx="660" cy="63" r="4"/>
+      </g>
+      <text x="672" y="60" fill="#7f95a8" font-size="11.5" text-anchor="end">4.0 kg feed</text>
+      <text x="672" y="202" fill="#e2622a" font-size="11.5" text-anchor="end">1.35 kg bird</text>
+      <text x="285" y="196" fill="#e2622a" font-size="11.5">live weight</text>
+      <text x="285" y="176" fill="#7f95a8" font-size="11.5">feed eaten</text>
+      <line x1="435" y1="147" x2="435" y2="203" stroke="#8b9099" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="428" y="270" fill="#8b9099" font-size="10.5" text-anchor="middle">lines split here</text>
+      <g fill="#8b9099" font-size="11" text-anchor="middle">
+        <text x="60" y="268">day 0</text><text x="210" y="268">30</text>
+        <text x="360" y="268">60</text><text x="510" y="268">90</text>
+        <text x="660" y="268">120</text>
+      </g>
+      <g font-size="12">
+        <text x="60" y="300" fill="#e8e3d8" font-weight="600">After week 14 the bird eats about 300 g a week to gain 67 g.</text>
+        <text x="60" y="319" fill="#8b9099">At ₹300/kg that week earns ₹20 against ₹14 of cost. At ₹190/kg it earns ₹13 against the same ₹14.</text>
+      </g>
+    </svg>
+  </figure>
+
+  <table class="tb">
+    <tr><th>Age</th><th>Weight</th><th>Feed eaten</th><th>Feed per kg of bird</th><th>Read</th></tr>
+    <tr><td>75 days</td><td>1.00 kg</td><td>2.2 kg</td><td>2.2</td><td>Sellable, but small for the price</td></tr>
+    <tr><td>90 days</td><td>1.15 kg</td><td>2.9 kg</td><td>2.5</td><td>Most efficient point</td></tr>
+    <tr><td>105 days</td><td>1.22 kg</td><td>3.4 kg</td><td>2.8</td><td>The usual sweet spot</td></tr>
+    <tr><td>120 days</td><td>1.35 kg</td><td>4.0 kg</td><td>3.0</td><td>Only worth it at a good rate</td></tr>
+  </table>
+  <p>So the sell date follows the price, not the calendar. Selling to a trader at ₹190/kg, take the birds out at 90–100 days — every week beyond that costs you money. Selling direct at ₹300/kg, hold to 120 days and the extra weight pays, at roughly ₹5 a bird a week after feed and overheads.</p>
+  <p class="cap">Start weighing 20 birds every Sunday from day 70 and plot the numbers against this curve. When weekly gain drops under about 80 g, the bird is telling you it is finished. Sell into the next good rate rather than waiting for a round number on the calendar.</p>
+
+  <h3>6. Vaccination</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Vaccination timeline from day 1 to day 90">
+      <line x1="50" y1="130" x2="660" y2="130" stroke="#39414b" stroke-width="2"/>
+      <g stroke="#e2622a" stroke-width="2">
+        <line x1="55" y1="130" x2="55" y2="96"/>
+        <line x1="80" y1="130" x2="80" y2="164"/>
+        <line x1="115" y1="130" x2="115" y2="70"/>
+        <line x1="170" y1="130" x2="170" y2="164"/>
+        <line x1="210" y1="130" x2="210" y2="96"/>
+        <line x1="275" y1="130" x2="275" y2="186"/>
+        <line x1="365" y1="130" x2="365" y2="70"/>
+        <line x1="500" y1="130" x2="500" y2="164"/>
+      </g>
+      <g fill="#e2622a">
+        <circle cx="55" cy="130" r="4.5"/><circle cx="80" cy="130" r="4.5"/>
+        <circle cx="115" cy="130" r="4.5"/><circle cx="170" cy="130" r="4.5"/>
+        <circle cx="210" cy="130" r="4.5"/><circle cx="275" cy="130" r="4.5"/>
+        <circle cx="365" cy="130" r="4.5"/><circle cx="500" cy="130" r="4.5"/>
+      </g>
+      <g fill="#e8e3d8" font-size="11.5" font-weight="600">
+        <text x="48" y="90">Marek's</text>
+        <text x="60" y="180">Lasota</text>
+        <text x="96" y="64">Gumboro</text>
+        <text x="150" y="180">Gumboro 2</text>
+        <text x="190" y="90">Lasota 2</text>
+        <text x="248" y="202">Fowl pox</text>
+        <text x="344" y="64">R2B</text>
+        <text x="470" y="180">Deworm 2</text>
+      </g>
+      <g fill="#8b9099" font-size="10.5">
+        <text x="48" y="104">day 1, hatchery</text>
+        <text x="60" y="194">day 6, eye drop</text>
+        <text x="96" y="78">day 13, water</text>
+        <text x="150" y="194">day 24, water</text>
+        <text x="190" y="104">day 32, water</text>
+        <text x="248" y="216">day 45, wing web</text>
+        <text x="344" y="78">day 63, injection</text>
+        <text x="470" y="194">day 90</text>
+      </g>
+      <g fill="#8b9099" font-size="11" text-anchor="middle">
+        <text x="55" y="148">0</text><text x="200" y="148">30 d</text>
+        <text x="350" y="148">60 d</text><text x="500" y="148">90 d</text>
+        <text x="650" y="148">120 d</text>
+      </g>
+    </svg>
+  </figure>
+
+  <table class="tb">
+    <tr><th>Age</th><th>Vaccine</th><th>Protects against</th><th>Route</th></tr>
+    <tr><td>Day 1</td><td>Marek's HVT</td><td>Marek's disease</td><td>Done at the hatchery — confirm before you accept chicks</td></tr>
+    <tr><td>Day 5–7</td><td>Lasota / RDF1</td><td>Ranikhet (Newcastle)</td><td>One drop in the eye or nostril</td></tr>
+    <tr><td>Day 12–14</td><td>IBD intermediate</td><td>Gumboro</td><td>Drinking water</td></tr>
+    <tr><td>Day 21–24</td><td>IBD booster</td><td>Gumboro</td><td>Drinking water</td></tr>
+    <tr><td>Week 4–5</td><td>Lasota booster</td><td>Ranikhet</td><td>Drinking water</td></tr>
+    <tr><td>Week 6–7</td><td>Fowl pox</td><td>Fowl pox</td><td>Wing web stab</td></tr>
+    <tr><td>Week 8–10</td><td>R2B / Mukteswar</td><td>Ranikhet, long-lasting</td><td>0.5 ml subcutaneous</td></tr>
+  </table>
+  <p><b>Handling rules that decide whether any of this works.</b> Live vaccines stay at 2–8 °C until the moment of use — carry them in a cooler with ice packs, never in a pocket. Reconstitute and use within two hours. For water-route vaccines, withdraw water for 1–2 hours first so every bird drinks, use skim milk powder at 2 g/litre to protect the virus, and never use chlorinated water or a metal vessel. Vaccinate in the cool of early morning. A vaccine given badly is worse than none, because you will believe the flock is protected.</p>
+  <p class="cap">Confirm this schedule with the District Animal Husbandry office in Nagpur before your first batch. Disease pressure is local, and they will know whether your area needs an earlier Ranikhet dose or an Infectious Bronchitis vaccine that this schedule leaves out.</p>
+
+  <h3>7. Diseases — recognising them early</h3>
+  <table class="tb">
+    <tr><th>Disease</th><th>When</th><th>What you see</th><th>What to do</th></tr>
+    <tr><td><b>Ranikhet</b> (Newcastle)</td><td>Any age</td><td>Greenish diarrhoea, gasping, twisted neck, paralysis, birds circling. Mortality can pass 80%.</td><td>No treatment. Prevention is the vaccine. If it starts, isolate immediately and call the vet — it is notifiable and it will jump to neighbouring farms.</td></tr>
+    <tr><td><b>Gumboro</b> (IBD)</td><td>3–6 weeks</td><td>Sudden depression, white watery droppings, birds pecking at their own vent, ruffled feathers, quick dehydration.</td><td>No cure. Support with electrolytes and vitamins, lower protein briefly. Survivors are immunosuppressed and will catch the next thing going.</td></tr>
+    <tr><td><b>Coccidiosis</b></td><td>3–8 weeks</td><td>Blood-flecked or brown droppings, huddling, ruffled feathers, sudden drop in feed intake. Wet litter is always the trigger.</td><td>Amprolium in water is the standard treatment — get the dose from a vet. Fix the wet litter the same day or it returns.</td></tr>
+    <tr><td><b>CRD</b> (mycoplasma)</td><td>4 weeks on</td><td>Rattling breath, nasal discharge, swollen face, coughing at night. Slows growth badly even when few birds die.</td><td>Vet-prescribed antibiotic. Usually follows dust, ammonia or overcrowding — treat the ventilation, not just the bird.</td></tr>
+    <tr><td><b>Fowl pox</b></td><td>6 weeks on</td><td>Wart-like scabs on comb and wattles, or yellow plaques in the mouth in the wet form.</td><td>Spread by mosquitoes, so it peaks after the monsoon. Vaccine prevents it; there is no cure once it appears.</td></tr>
+    <tr><td><b>Marek's</b></td><td>8–20 weeks</td><td>One leg forward one back, drooping wing, wasting while still eating.</td><td>Only the day-1 hatchery vaccine prevents it. This is why you confirm it was given.</td></tr>
+    <tr><td><b>Heat stress</b></td><td>April–June</td><td>Panting, wings held out, crowding to walls, birds off feed, sudden afternoon deaths of the heaviest birds.</td><td>Foggers on cycles, cool water, feed at night, electrolytes in water. Your biggest single risk in Nagpur.</td></tr>
+    <tr><td><b>Colibacillosis</b></td><td>Any age</td><td>Follows something else — usually dirty water, wet litter or a CRD outbreak. Listless birds, poor growth.</td><td>Clean the drinkers daily. It is nearly always a hygiene failure rather than bad luck.</td></tr>
+  </table>
+  <p class="cap">A rule worth holding to: any bird found dead gets examined, not just removed. Two or three deaths a week is normal wastage. Two or three in a day is an outbreak, and the twelve hours you spend deciding whether it counts are the twelve hours in which it spreads.</p>
+
+  <h3>8. Litter and water</h3>
+  <p>Litter is the most under-managed thing on a small farm and it causes more losses than any single disease. Paddy husk or groundnut shell, 3–4 inches, stirred every second day so it does not cake. The test is your fist: squeeze a handful, and if it clumps and holds shape it is too wet and coccidiosis is coming. If it powders and stings your eyes with ammonia, it is too dry and dusty and CRD is coming.</p>
+  <p>Fix leaking drinkers the day you notice them. Sprinkle lime under the drinker line if damp starts. Remove and replace caked patches rather than turning them in.</p>
+  <p>A bird drinks roughly twice what it eats, so about 3.5 kg of water per bird over the cycle — around 3,000 litres for your batch. That doubles in a Nagpur May. Scrub drinkers daily; a biofilm in a drinker undoes a vaccination programme.</p>
+
+  <h3>9. Biosecurity</h3>
+  <ul class="risks">
+    <li><b>All-in, all-out.</b> One age group in the shed at a time. Mixing ages is how a farm becomes permanently infected.</li>
+    <li><b>Rest between batches.</b> Two to three weeks after cleaning, washing and lime-washing. This is not idle time, it is a disease break.</li>
+    <li><b>Foot dip at the door,</b> refreshed every two days. Most disease arrives on footwear.</li>
+    <li><b>No visitors into the shed,</b> especially anyone who keeps birds or works at another farm. Let buyers see birds at the gate.</li>
+    <li><b>Buried mesh at the wall foot.</b> Rats carry salmonella and eat feed; your 3 ft cement band handles dogs and mongoose.</li>
+    <li><b>Dead birds burned or buried deep</b> the same day, away from the shed and any water source.</li>
+  </ul>
+
+  <h3>10. Keeping Sonali for eggs</h3>
+  <p>Sonali is dual-purpose, so the same bird you sell at 1.35 kg will lay 185–200 brown eggs a year if you keep her instead. Egg weight runs 50–55 g and the shell is the tinted brown that buyers read as desi. A hen comes into lay around day 150–160 and is worth keeping for about thirteen months of production.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Lay rate rising to a peak near 80 percent at 30 weeks then declining to 45 percent by 76 weeks">
+      <g stroke="#39414b" stroke-width="1">
+        <line x1="60" y1="72" x2="660" y2="72"/>
+        <line x1="60" y1="124" x2="660" y2="124"/>
+        <line x1="60" y1="177" x2="660" y2="177"/>
+        <line x1="60" y1="230" x2="660" y2="230"/>
+      </g>
+      <g fill="#8b9099" font-size="11" text-anchor="end">
+        <text x="52" y="76">75%</text><text x="52" y="128">50%</text>
+        <text x="52" y="181">25%</text><text x="52" y="234">0</text>
+      </g>
+      <rect x="145" y="40" width="65" height="190" fill="#e2622a" opacity="0.10"/>
+      <text x="177" y="34" fill="#e2622a" font-size="10.5" text-anchor="middle">peak</text>
+      <polyline points="60,219 81,167 103,114 124,82 146,65 167,61 231,70 317,82 403,95 489,108 574,120 660,135"
+                fill="none" stroke="#e2622a" stroke-width="2.5"/>
+      <g fill="#e2622a">
+        <circle cx="167" cy="61" r="4.5"/><circle cx="403" cy="95" r="4"/><circle cx="660" cy="135" r="4"/>
+      </g>
+      <g fill="#e8e3d8" font-size="11.5">
+        <text x="176" y="52">80% at week 30</text>
+        <text x="360" y="88">64% at a year old</text>
+        <text x="560" y="128">45% — time to cull</text>
+      </g>
+      <g fill="#8b9099" font-size="11" text-anchor="middle">
+        <text x="60" y="250">week 20</text><text x="231" y="250">36</text>
+        <text x="403" y="250">52</text><text x="574" y="250">68</text><text x="660" y="250">76</text>
+      </g>
+      <g font-size="12">
+        <text x="60" y="278" fill="#e8e3d8" font-weight="600">Production is never flat. Plan on 185 eggs a year, not 200.</text>
+        <text x="60" y="296" fill="#8b9099">A Nagpur May takes 20–30% off the curve from heat alone, whatever the bird's age.</text>
+      </g>
+    </svg>
+  </figure>
+
+  <h4>Why Sonali rather than another layer</h4>
+  <table class="tb">
+    <tr><th>Breed</th><th>Eggs/year</th><th>Egg</th><th>Verdict for this farm</th></tr>
+    <tr><td><b>Sonali</b></td><td>185–200</td><td>Brown</td><td>Best of the coloured birds, and the same breed you already run for meat</td></tr>
+    <tr><td>Gramapriya</td><td>160–180</td><td>Brown</td><td>ICAR's purpose-bred backyard layer. Good, but fewer eggs and a second breed to manage</td></tr>
+    <tr><td>Rajasri / Srinidhi</td><td>140–150</td><td>Brown</td><td>Dual-purpose, weaker on eggs</td></tr>
+    <tr><td>Vanaraja</td><td>100–110</td><td>Brown</td><td>A meat bird that happens to lay. Not for this</td></tr>
+    <tr><td>Commercial layer</td><td>270–290</td><td>White</td><td>Nearly double the eggs on far less feed — but a white egg sells at the NECC rate, forfeiting the whole desi premium</td></tr>
+  </table>
+  <p class="cap">The commercial layer is the trap. On volume and feed efficiency it wins easily, at 1.8–2 kg of feed per dozen against roughly 2.6 for a coloured bird. But it earns around ₹220 a hen a year at wholesale rates, which is a business at five thousand birds and pointless at a hundred and fifty. It also leaves you a spent hen worth almost nothing, where a Sonali is still worth about ₹320.</p>
+
+  <h4>Getting the birds</h4>
+  <p>Buy <b>female chicks or point-of-lay pullets</b>, never straight-run. Half a straight-run batch is cockerels, and you would feed them for five months before finding out they do not lay. Rearing your own female chicks costs roughly ₹290 a pullet but means five months with no income; buying at point of lay costs ₹350–450 and has you selling eggs within a month. For a first flock, buy point-of-lay — it separates learning to sell eggs from learning to rear pullets.</p>
+
+  <h4>Housing the layers</h4>
+  <table class="tb">
+    <tr><th>Item</th><th>What it needs</th></tr>
+    <tr><td>Floor space</td><td>2 sq ft a hen on deep litter, more than the 1.32 a grow-out bird gets. Crowded layers lay fewer eggs and start pecking each other.</td></tr>
+    <tr><td>Nest boxes</td><td>One per 4–5 hens, about 12 × 12 × 14 inches, in the darkest and quietest part of the pen, raised 18–24 inches off the litter. Bed them with clean husk and keep them clean.</td></tr>
+    <tr><td>Perches</td><td>6–8 inches of perch a bird. Sonali retains a strong roosting instinct from its Fayoumi side and will sleep in the nest boxes if you don't give it somewhere better — which means dirty eggs every morning.</td></tr>
+    <tr><td>Light</td><td>16 hours a day once lay starts. Make it up with a bulb switched on before dawn rather than after dusk. Never reduce day length during lay; production drops and does not fully recover.</td></tr>
+    <tr><td>Separation</td><td>A full-height partition with its own door if grow-out birds share the shed. Two ages in one airspace breaks all-in-all-out.</td></tr>
+  </table>
+  <p class="cap">Floor eggs are the commonest failure with a new flock, and they are mostly a nest-box problem: too few boxes, too bright, too exposed, or introduced too late. Have the boxes in place two weeks before the first egg so hens learn them before they need them.</p>
+
+  <h4>Feeding a layer</h4>
+  <p>Switch to layer feed at 18 weeks, or when the first eggs appear — whichever comes first. A layer eats about 110 g a day, roughly 3.3 kg a month, and the critical difference from grower feed is calcium: layer ration carries 3.5–4% against under 1% in grower. Feeding grower feed to a laying hen gives thin shells first and bone problems later.</p>
+  <p>Offer shell grit or limestone chips free-choice in a separate pot. Hens self-regulate calcium, and they need most of it in the afternoon because the shell forms overnight — an afternoon top-up of grit does more for shell quality than raising calcium in the main ration.</p>
+  <p>Water matters more for a layer than a meat bird. An egg is 70% water, and a hen deprived of water for a few hours in summer will stop laying for several days. Two drinker refills a day, scrubbed, and never let the tank run dry in May.</p>
+
+  <h4>Handling the eggs</h4>
+  <ul class="risks">
+    <li><b>Collect twice a day,</b> three times in summer. An egg left in the litter through a hot afternoon is a cracked or soiled egg, and a dirty desi egg does not fetch a premium price.</li>
+    <li><b>Do not wash eggs.</b> The shell has a natural cuticle that keeps bacteria out; washing removes it and shortens shelf life. Wipe a soiled egg dry with a cloth, or sell it separately.</li>
+    <li><b>Store pointed end down</b> in a cool, shaded place. Fresh unwashed eggs keep well for 2–3 weeks, but your customers are paying for freshness — sell within a week.</li>
+    <li><b>Grade by size.</b> Early-lay eggs are small and pullet eggs at 40 g should not go out at the same price as 55 g eggs. Consistency is what lets you hold ₹12.</li>
+    <li><b>Keep them away from onions, kerosene and paint.</b> Shells are porous and eggs pick up smells.</li>
+  </ul>
+
+  <h4>Health differences in a laying flock</h4>
+  <p>The vaccination schedule in section 6 covers a bird sold at four months. A hen kept eighteen months needs more: an R2B booster at 16–18 weeks, and a Lasota repeat every 8–10 weeks through the laying period, since Ranikhet in a layer flock shows up as a collapse in production before it shows up as dead birds. Deworm every 8–10 weeks. Get the full layer programme from the Animal Husbandry office — it is longer than the meat one and the intervals matter.</p>
+  <table class="tb">
+    <tr><th>Problem</th><th>Cause</th><th>Fix</th></tr>
+    <tr><td>Thin or soft shells</td><td>Calcium shortage, heat, or an ageing hen</td><td>Free-choice grit, afternoon calcium, cooling. Persistent across the flock means the ration is wrong.</td></tr>
+    <tr><td>Sudden drop in lay</td><td>Disease, water interruption, a fright at night, or day length shortening</td><td>Check water and light first — both are far commoner than disease.</td></tr>
+    <tr><td>Prolapse</td><td>Hens coming into lay overweight, or too early</td><td>Control body weight before point of lay. Remove affected birds; the flock will peck at them.</td></tr>
+    <tr><td>Egg eating</td><td>Starts with one broken egg and becomes a habit</td><td>Collect often, keep nests bedded. A confirmed egg-eater has to be culled — it teaches the others.</td></tr>
+    <tr><td>Broodiness</td><td>Sonali carries desi broodiness and will sit rather than lay</td><td>Remove the hen to a separate airy pen for 3–4 days. Useful if you ever want natural hatching.</td></tr>
+  </table>
+
+  <h4>When to cull</h4>
+  <p>Production falls below about 45–50% after roughly seventy weeks, and at that point the hen is eating the same 3.3 kg a month for a third fewer eggs. Sell her then. A spent Sonali hen at 1.6–1.8 kg still fetches a proper price as a desi bird — unlike a commercial layer, which is why the eighteen-month cycle works financially. Replace the flock in one batch rather than birds one at a time, so you keep a single age group in the pen.</p>
+
+  <h3>11. The daily routine</h3>
+  <table class="tb">
+    <tr><th>When</th><th>Task</th></tr>
+    <tr><td>Early morning</td><td>Walk the shed before feeding. Look at how birds are standing and spread, not just whether they are alive. Feed, refill and scrub drinkers, remove any dead bird.</td></tr>
+    <tr><td>Midday</td><td>Check temperature and airflow. In summer, foggers on, and check the tank has not run down.</td></tr>
+    <tr><td>Evening</td><td>Second feed, stir the litter, quick head count of anything sick or separated from the flock.</td></tr>
+    <tr><td>Weekly</td><td>Weigh 20 birds and write it down. Top up litter. Check the fogger nozzles.</td></tr>
+    <tr><td>Every batch</td><td>Record chicks in, deaths by week, feed bags used, weights, sale weight and rate. Four batches of this and you will know your own farm better than any guide can tell you.</td></tr>
+  </table>
+  <p class="cap">The weekly weighing is the one habit that separates farms that improve from farms that repeat the same batch for years. It tells you when growth stalls, which is the earliest sign of nearly every problem here — days before you would see a sick bird.</p>
+
+  <p class="foot">Vaccination ages follow standard Indian schedules for coloured and backyard birds. Confirm the specific programme with the District Animal Husbandry office in Nagpur, and use a veterinarian for any antibiotic or dosing decision — nothing here is a substitute for someone who can examine the flock.</p>
+</div>
+</section>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+
 (function(){
 'use strict';
 
@@ -477,14 +1208,54 @@ function applyCam(){
   camera.lookAt(target);
 }
 const el = renderer.domElement;
+const ptrs = new Map();
+let pinchDist = 0, pinchX = 0, pinchY = 0;
+function centroid(){
+  let cx = 0, cy = 0;
+  ptrs.forEach(p => { cx += p.x; cy += p.y; });
+  return {x: cx/ptrs.size, y: cy/ptrs.size};
+}
+function spread(){
+  const p = Array.from(ptrs.values());
+  return Math.hypot(p[0].x-p[1].x, p[0].y-p[1].y);
+}
 el.addEventListener('contextmenu', e => e.preventDefault());
 el.addEventListener('pointerdown', e => {
   el.setPointerCapture(e.pointerId);
-  if(e.button === 2 || e.shiftKey) panning = true; else dragging = true;
-  px = e.clientX; py = e.clientY;
+  ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if(ptrs.size === 2){
+    dragging = panning = false;
+    pinchDist = spread();
+    const c = centroid(); pinchX = c.x; pinchY = c.y;
+  } else if(ptrs.size === 1){
+    if(e.button === 2 || e.shiftKey) panning = true; else dragging = true;
+    px = e.clientX; py = e.clientY;
+  }
 });
-el.addEventListener('pointerup', () => { dragging = panning = false; });
+function endPtr(e){
+  ptrs.delete(e.pointerId);
+  if(ptrs.size < 2) pinchDist = 0;
+  if(ptrs.size === 0){ dragging = panning = false; }
+  else if(ptrs.size === 1){
+    const p = Array.from(ptrs.values())[0];
+    px = p.x; py = p.y; dragging = true; panning = false;
+  }
+}
+el.addEventListener('pointerup', endPtr);
+el.addEventListener('pointercancel', endPtr);
 el.addEventListener('pointermove', e => {
+  if(ptrs.has(e.pointerId)) ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+  if(ptrs.size === 2){                       // pinch to zoom, two fingers to pan
+    const d = spread(), c = centroid();
+    if(pinchDist > 0 && d > 0) radius *= pinchDist / d;
+    const s = radius*0.0016;
+    target.addScaledVector(new THREE.Vector3(Math.cos(theta),0,-Math.sin(theta)), -(c.x-pinchX)*s);
+    target.y += (c.y-pinchY)*s;
+    pinchDist = d; pinchX = c.x; pinchY = c.y;
+    applyCam();
+    return;
+  }
   if(!dragging && !panning) return;
   const dx = e.clientX-px, dy = e.clientY-py;
   px = e.clientX; py = e.clientY;
@@ -531,12 +1302,204 @@ document.querySelectorAll('.views button').forEach(b =>
   b.addEventListener('click', () => goView(b.dataset.view)));
 
 function resize(){
-  const w = window.innerWidth, h = window.innerHeight;
+  const w = window.innerWidth, h = Math.max(200, window.innerHeight - 46);
   camera.aspect = w/h; camera.updateProjectionMatrix(); renderer.setSize(w,h);
 }
 window.addEventListener('resize', resize);
 resize(); applyCam(); build();
 (function loop(){ requestAnimationFrame(loop); renderer.render(scene, camera); })();
+})();
+
+</script>
+
+<script>
+/* ================= business plan model ================= */
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const FIXED = {litter:1800, med:6800, brood:6000, misc:5000};
+const OTHER = FIXED.litter + FIXED.med + FIXED.brood + FIXED.misc;
+const MANURE = 3000;
+
+const F = new Intl.NumberFormat('en-IN');
+const rs  = v => '₹' + F.format(Math.round(v));
+const rsL = v => '₹' + (v/100000).toFixed(2) + ' L';
+
+function readInputs(){
+  const v = {
+    birds:+$('i-birds').value, chick:+$('i-chick').value, mort:+$('i-mort').value,
+    wt:+$('i-wt').value, fpb:+$('i-fpb').value, frate:+$('i-frate').value,
+    price:+$('i-price').value, cyc:+$('i-cyc').value,
+    labMonth:+$('i-lab').value
+  };
+  v.lab = v.labMonth * 12 / v.cyc;   // salary runs through clean-out weeks too
+  return v;
+}
+function model(v, priceOverride, feedOverride){
+  const price = priceOverride == null ? v.price : priceOverride;
+  const frate = feedOverride  == null ? v.frate : feedOverride;
+  const surv  = v.birds * (1 - v.mort/100);
+  const feedKg= v.birds * v.fpb * (1 - v.mort/200);
+  const cChick= v.birds * v.chick;
+  const cFeed = feedKg * frate;
+  const cost  = cChick + cFeed + v.lab + OTHER;
+  const kg    = surv * v.wt;
+  const sales = kg * price;
+  const rev   = sales + MANURE;
+  return {surv, feedKg, cChick, cFeed, cost, kg, sales, rev,
+          profit: rev - cost,
+          cpk: cost / kg,
+          be: (cost - MANURE) / kg};
+}
+
+function bars(m){
+  const parts = [
+    ['Feed', m.cFeed, ''],
+    ['Chicks', m.cChick, 'd2'],
+    ['Helper', m.lab, 'd3'],
+    ['Everything else', OTHER, 'd4']
+  ];
+  return parts.map(([n,val,cls]) => {
+    const pc = val / m.cost * 100;
+    return '<div class="bar"><i class="'+cls+'" style="width:'+pc.toFixed(1)+'%"></i>' +
+           n + ' ' + pc.toFixed(0) + '%</div>';
+  }).join('');
+}
+
+function sensTable(v){
+  const prices = [200,240,280,300];
+  const feeds  = [28,32,36,40];
+  let h = '<tr><th>Profit per cycle</th>' +
+          feeds.map(f => '<th>feed ₹'+f+'</th>').join('') + '</tr>';
+  prices.forEach(p => {
+    h += '<tr><td>live ₹'+p+'/kg</td>';
+    feeds.forEach(f => {
+      const r = model(v, p, f).profit;
+      h += '<td class="'+(r>=0?'pos':'neg')+'">'+ (r<0 ? '−' : '') + rs(Math.abs(r)).slice(1) + '</td>';
+    });
+    h += '</tr>';
+  });
+  return h;
+}
+
+function render(){
+  const v = readInputs();
+  const m = model(v); m.lab = v.lab;
+
+  $('o-birds').textContent = F.format(v.birds);
+  $('o-chick').textContent = '₹' + v.chick;
+  $('o-mort').textContent  = v.mort + '%';
+  $('o-wt').textContent    = v.wt.toFixed(2) + ' kg';
+  $('o-fpb').textContent   = v.fpb.toFixed(1) + ' kg';
+  $('o-frate').textContent = '₹' + v.frate;
+  $('o-price').textContent = '₹' + v.price;
+  $('o-lab').textContent   = v.labMonth === 0 ? 'family, unpaid' : rs(v.labMonth) + '/mo';
+  $('o-cyc').textContent   = v.cyc.toFixed(1);
+
+  $('s-birds').textContent  = F.format(Math.round(m.surv));
+  $('s-profit').textContent = rs(m.profit);
+  $('s-be').textContent     = rs(m.be);
+  $('s-year').textContent   = rs(m.profit * v.cyc);
+
+  $('c-chick').textContent = rs(m.cChick);
+  $('c-feed').textContent  = rs(m.cFeed);
+  $('c-feedkg').textContent= '(' + F.format(Math.round(m.feedKg)) + ' kg)';
+  $('c-lab').textContent   = v.labMonth === 0 ? '—' : rs(v.lab);
+  $('c-labnote').textContent = v.labMonth === 0 ? '' :
+    '(' + rs(v.labMonth) + '/mo × 12 ÷ ' + v.cyc.toFixed(1) + ' cycles)';
+  $('c-total').textContent = rs(m.cost);
+  $('bars').innerHTML      = bars(m);
+
+  $('r-birds').textContent  = F.format(Math.round(m.surv));
+  $('r-kg').textContent     = F.format(Math.round(m.kg)) + ' kg';
+  $('r-sales').textContent  = rs(m.sales);
+  $('r-rev').textContent    = rs(m.rev);
+  const pf = $('r-profit');
+  pf.textContent = rs(m.profit);
+  pf.className = m.profit >= 0 ? 'pos' : 'neg';
+  $('r-perbird').textContent = rs(m.profit / m.surv) + ' per bird';
+  $('r-cpk').textContent     = rs(m.cpk) + '/kg';
+  $('r-be').textContent      = rs(m.be) + '/kg';
+
+  const margin = (v.price - m.be) / v.price * 100;
+  $('r-note').textContent =
+    'You need ₹' + Math.round(m.be) + '/kg to cover costs and you are assuming ₹' + v.price +
+    '. That is a cushion of ' + margin.toFixed(0) + '%. Under about 15% a single bad week of ' +
+    'mortality or a feed price move wipes the cycle out.';
+
+  $('sens').innerHTML = sensTable(v);
+}
+
+['i-birds','i-chick','i-mort','i-wt','i-fpb','i-frate','i-price','i-lab','i-cyc']
+  .forEach(id => $(id).addEventListener('input', render));
+
+/* ================= tabs ================= */
+const TABS = ['site','plan','bird'];
+const MOBILE = () => window.innerWidth <= 860;
+let current = 'site';
+let railOpen = !MOBILE();          // open by default on desktop, closed on a phone
+
+function updateChrome(){
+  const site  = current === 'site';
+  const small = MOBILE();
+  $('rail').style.display       = (site && (!small || railOpen)) ? '' : 'none';
+  $('railtoggle').style.display = (site && small) ? 'block' : 'none';
+  $('railtoggle').textContent   = railOpen ? 'Hide controls' : 'Controls';
+  $('railtoggle').setAttribute('aria-expanded', String(railOpen));
+  $('hint').style.display       = (site && !small) ? '' : 'none';
+}
+function show(which){
+  current = which;
+  TABS.forEach(k => {
+    const on = k === which;
+    $('tb-'+k).setAttribute('aria-selected', String(on));
+    $('tab-'+k).hidden = !on;
+  });
+  updateChrome();
+  if(which === 'site') window.dispatchEvent(new Event('resize'));
+  else $('tab-'+which).scrollTop = 0;
+}
+TABS.forEach(k => $('tb-'+k).addEventListener('click', () => show(k)));
+$('railtoggle').addEventListener('click', () => { railOpen = !railOpen; updateChrome(); });
+
+let wasSmall = MOBILE();
+window.addEventListener('resize', () => {
+  const small = MOBILE();
+  if(small !== wasSmall){ railOpen = !small; wasSmall = small; }
+  updateChrome();
+});
+
+/* wide tables scroll sideways instead of squashing on a phone */
+document.querySelectorAll('.doc table.tb').forEach(t => {
+  if(t.parentNode.classList.contains('tw')) return;
+  const w = document.createElement('div');
+  w.className = 'tw';
+  t.parentNode.insertBefore(w, t);
+  w.appendChild(t);
+});
+
+/* tell the reader when something scrolls sideways, and only when it does */
+function markScrollers(){
+  document.querySelectorAll('.tw, .fig').forEach(box => {
+    let note = box.previousElementSibling;
+    if(!note || !note.classList.contains('swipe')){
+      note = document.createElement('p');
+      note.className = 'swipe';
+      note.textContent = 'Swipe sideways to see all of this →';
+      box.parentNode.insertBefore(note, box);
+    }
+    const needed = box.scrollWidth - box.clientWidth > 4;
+    note.classList.toggle('on', needed);
+  });
+}
+window.addEventListener('resize', markScrollers);
+TABS.forEach(k => $('tb-'+k).addEventListener('click', () => setTimeout(markScrollers, 60)));
+
+updateChrome();
+markScrollers();
+setTimeout(markScrollers, 300);
+
+render();
 })();
 </script>
 </body>
