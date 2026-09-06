@@ -70,8 +70,8 @@
     background:rgba(13,16,20,.7);padding:6px 10px;border-radius:3px;z-index:6}
 
   /* ---- plan tab ---- */
-  #tab-plan,#tab-bird{position:fixed;top:46px;left:0;right:0;bottom:0;overflow-y:auto}
-  #tab-plan[hidden],#tab-bird[hidden]{display:none}
+  #tab-plan,#tab-bird,#tab-goat{position:fixed;top:46px;left:0;right:0;bottom:0;overflow-y:auto}
+  #tab-plan[hidden],#tab-bird[hidden],#tab-goat[hidden]{display:none}
   .fig{margin:14px 0 18px;padding:16px;background:var(--panel);border:1px solid var(--line)}
   .fig svg{width:100%;height:auto;display:block}
   .fig.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;padding:0;background:var(--line)}
@@ -113,6 +113,7 @@
   .inputs output{display:block;color:var(--paper);font-size:15px;font-weight:650;
     font-variant-numeric:tabular-nums;margin-top:1px}
   .pl{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:8px}
+  .pl-col{min-width:0}
   .bars{margin-top:12px}
   .bar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:5px}
   .bar i{display:block;height:9px;background:var(--orange);border-radius:1px;flex:none}
@@ -161,6 +162,7 @@
   <button id="tb-site" aria-selected="true">Site &amp; shed</button>
   <button id="tb-plan" aria-selected="false">Business plan</button>
   <button id="tb-bird" aria-selected="false">Sonali guide</button>
+  <button id="tb-goat" aria-selected="false">Goat plan</button>
   <span class="mark">Nagpur · 1,598 sq ft · own plot</span>
 </nav>
 
@@ -840,6 +842,231 @@
 </section>
 
 
+<section id="tab-goat" hidden>
+<div class="doc">
+
+  <header class="ph">
+    <h2>Goat unit — ground floor, same shed</h2>
+    <p>106 goats · Osmanabadi base breed · raised slatted platform · hydroponic + forage feed mix</p>
+  </header>
+
+  <div class="stats">
+    <div><b id="gs-margin">₹4,712</b><span>margin per goat, per cycle</span></div>
+    <div><b id="gs-profit">₹9,34,909</b><span>gross profit per cycle</span></div>
+    <div><b id="gs-year">₹7,88,909</b><span>net profit per year</span></div>
+    <div><b id="gs-payback">0.7 yrs</b><span>payback on setup capex</span></div>
+  </div>
+
+  <h3>1. Which breed, and why it matters this much</h3>
+  <p>Breed choice changes three things at once: how many kids a doe throws if you breed your own replacements, how heat-hardy the animal is on a Nagpur concrete plot, and which price segment it sells into. The table below is built from ICAR and breed-survey data, not farm marketing copy — real farm results vary with management, so treat the ranges as what's achievable, not guaranteed.</p>
+  <table class="tb">
+    <tr><th>Breed</th><th>Adult weight</th><th>Kidding</th><th>Reported mortality</th><th>Verdict for this farm</th></tr>
+    <tr><td><b>Osmanabadi</b></td><td>Doe 25–32kg, buck 34–45kg</td><td>~2.1–2.3 kids/doe/yr — 62% twins, 7% triplets</td><td>Low with good management</td><td>Base recommendation. Bred for this exact climate, prolific, and it's the segment your Nagpur price table already prices as "Commercial."</td></tr>
+    <tr><td>Sirohi</td><td>Doe ~23–25kg, buck ~50kg</td><td>~1.1 kids/doe/yr — 90% single births</td><td>2.4–10.1% (purebred, one field study)</td><td>Very heat-hardy, good meat conformation. Weaker choice if you plan to breed your own does — far fewer kids per doe than Osmanabadi. Fine for pure fattening, where kidding rate is irrelevant.</td></tr>
+    <tr><td>Beetal</td><td>Larger dual-purpose frame</td><td>Moderate twinning</td><td>3.5–11.9% (crossbred kids)</td><td>Decent dual meat+milk option, but less locally dominant in Vidarbha than Osmanabadi — thinner local buyer familiarity and possibly a thinner market.</td></tr>
+    <tr><td>Jamnapari</td><td>Tall, large-framed</td><td>Later maturity — first kidding ~24 months</td><td>Not well documented</td><td>A dairy breed first (3–5 L milk/day), meat second. Only worth it if you want goat milk as a genuine third income stream — not a fit for a pure meat-fattening operation.</td></tr>
+    <tr><td>Boer / Boer-cross</td><td>Fastest growth, 55–60% dressing</td><td>Good under controlled feeding</td><td>Depends heavily on local adaptation</td><td>Best growth rate in the world under stall-feeding — exactly your setup. But exotic genetics, pricier stock, and a narrower buyer base to confirm. Worth piloting 10–15 head alongside the main Osmanabadi batch before converting the herd.</td></tr>
+  </table>
+  <p class="cap">Your Nagpur price table's "Commercial Meat/Dual" segment (₹320–380 buy, ₹400–450 sell) is priced around Osmanabadi and Sirohi specifically. The "Premium/Festive" segment (₹450–800+) is where Boer and Beetal crosses trade — a different, smaller buyer pool that peaks hard around Bakr-Eid and is thin the rest of the year.</p>
+
+  <h3>2. Your numbers</h3>
+  <p>Move anything that doesn't match your quotes. Confirm the buy and sell rates with an actual Nagpur trader before trusting this — the ₹1.16 lakh gap between what a trader pays and what you can charge direct was the whole story on the poultry side, and it applies here too.</p>
+
+  <div class="inputs">
+    <label>Goats per batch <input type="range" id="gi-count" min="60" max="130" step="1" value="106"><output id="go-count"></output></label>
+    <label>Buy weight, kg <input type="range" id="gi-buyw" min="10" max="20" step="1" value="15"><output id="go-buyw"></output></label>
+    <label>Buy rate, ₹/kg <input type="range" id="gi-buyr" min="230" max="450" step="5" value="350"><output id="go-buyr"></output></label>
+    <label>Sell weight, kg <input type="range" id="gi-sellw" min="25" max="42" step="1" value="32"><output id="go-sellw"></output></label>
+    <label>Sell rate, ₹/kg <input type="range" id="gi-sellr" min="280" max="550" step="5" value="425"><output id="go-sellr"></output></label>
+    <label>Grow-out, days <input type="range" id="gi-days" min="120" max="240" step="5" value="180"><output id="go-days"></output></label>
+    <label>Feed, ₹/goat/day <input type="range" id="gi-feed" min="8" max="30" step="0.1" value="12.9"><output id="go-feed"></output></label>
+    <label>Mortality, % <input type="range" id="gi-mort" min="2" max="20" step="1" value="6"><output id="go-mort"></output></label>
+    <label>Extra hand, avg days/mo <input type="range" id="gi-extra" min="0" max="10" step="0.5" value="2.5"><output id="go-extra"></output></label>
+  </div>
+
+  <div class="pl">
+    <div class="pl-col">
+      <h4>Cost, one batch</h4>
+      <table class="tb tight">
+        <tr><td>Stock — buying the goats</td><td id="gc-buy"></td></tr>
+        <tr><td>Feed <i id="gc-feednote"></i></td><td id="gc-feed"></td></tr>
+        <tr><td>Meds, misc, per head ₹500</td><td id="gc-other"></td></tr>
+        <tr class="tot"><td>Total cost</td><td id="gc-total"></td></tr>
+      </table>
+      <div class="bars" id="gbars"></div>
+    </div>
+    <div class="pl-col">
+      <h4>Return, one batch</h4>
+      <table class="tb tight">
+        <tr><td>Head sold (after mortality)</td><td id="gr-head"></td></tr>
+        <tr><td>Live weight sold</td><td id="gr-kg"></td></tr>
+        <tr class="tot"><td>Revenue</td><td id="gr-rev"></td></tr>
+        <tr class="tot big"><td>Profit</td><td id="gr-profit"></td></tr>
+        <tr><td>Per head</td><td id="gr-perhead"></td></tr>
+        <tr><td>Cycles per year</td><td id="gr-cycles"></td></tr>
+        <tr><td>Annual profit, base helper only</td><td id="gr-yr-base"></td></tr>
+        <tr><td>Annual profit, + extra hand</td><td id="gr-yr-extra"></td></tr>
+      </table>
+      <p class="cap" id="gr-note"></p>
+    </div>
+  </div>
+
+  <h3>3. What breaks it</h3>
+  <p>The buy-sell spread is everything here — far more than for the poultry side, because you're paying for weight you haven't added yet. This grid holds your other sliders fixed and shows profit per batch across the plausible rate range.</p>
+  <table class="tb grid" id="gsens"></table>
+  <p class="cap">The top-left corner — buying dear, selling cheap — is where a batch loses money outright. This is exactly what happened when the first quotes I was given implied selling for less per kg than buying: always check which end of the spread a rate applies to before running with it.</p>
+
+  <h3>4. Working capital — the real constraint</h3>
+  <p>Unlike chicks at ₹25 each, goat stock is expensive relative to what it sells for. Buying a full batch means real cash sitting idle from day one until sale, and it's due again every cycle.</p>
+  <table class="tb">
+    <tr><th></th><th></th></tr>
+    <tr><td>Stock money needed per batch</td><td id="gw-stock"></td></tr>
+    <tr><td>Due again every</td><td id="gw-cycle"></td></tr>
+    <tr><td>Goats to sell per week, over a 4-week window</td><td id="gw-week4"></td></tr>
+    <tr><td>Goats to sell per week, over an 8-week window</td><td id="gw-week8"></td></tr>
+  </table>
+  <p class="cap">This is usually the thing that actually stops a goat business, not the profit math. Confirm you (or a lender) can carry this amount idle every cycle, and confirm a buyer who can absorb the weekly volume — the same check the ₹300/kg poultry channel needed before it was real.</p>
+
+  <h3>5. Feeding — how much hydroponics is worth building</h3>
+  <p>The number of trays you need scales directly with how much fodder you want ready every day — that's the real cost driver, not automation. A vendor-sold "system" bundles in engineering and margin on top. Pick a scale below; it sets the feed-cost slider in section 2 and the capex used in section 10.</p>
+
+  <div class="grp" style="margin:16px 0">
+    <div class="seg" id="seg-hydro">
+      <button data-hydro="none" aria-pressed="false">Bought feed only</button>
+      <button data-hydro="small" aria-pressed="false">Small supplement</button>
+      <button data-hydro="full" aria-pressed="true">Full replacement</button>
+    </div>
+  </div>
+
+  <table class="tb" id="hydro-table"></table>
+  <p class="cap" id="hydro-note"></p>
+  <p class="cap">Fits in the same front-yard space earlier set aside for a poultry brooder house — the two plans use the same footprint differently, so building one forecloses the other unless you widen the yard. One kg of maize seed yields 7–8 kg of green fodder in 7–8 days at a production cost of roughly ₹2–5/kg, against ₹8–14/kg for cut-and-carry fodder and ₹30–35/kg for commercial concentrate. Monsoon humidity brings its own risk — fungus on the trays — so drainage and sterilization discipline matter as much as the equipment, at any scale.</p>
+
+  <h3>6. Vaccination</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Goat vaccination timeline from 3 to 6 months of age">
+      <line x1="60" y1="120" x2="660" y2="120" stroke="#39414b" stroke-width="2"/>
+      <g stroke="#e2622a" stroke-width="2">
+        <line x1="140" y1="120" x2="140" y2="86"/>
+        <line x1="200" y1="120" x2="200" y2="154"/>
+        <line x1="260" y1="120" x2="260" y2="86"/>
+        <line x1="320" y1="120" x2="320" y2="154"/>
+        <line x1="380" y1="120" x2="380" y2="86"/>
+        <line x1="440" y1="120" x2="440" y2="154"/>
+        <line x1="560" y1="120" x2="560" y2="86"/>
+      </g>
+      <g fill="#e2622a">
+        <circle cx="140" cy="120" r="4.5"/><circle cx="200" cy="120" r="4.5"/>
+        <circle cx="260" cy="120" r="4.5"/><circle cx="320" cy="120" r="4.5"/>
+        <circle cx="380" cy="120" r="4.5"/><circle cx="440" cy="120" r="4.5"/>
+        <circle cx="560" cy="120" r="4.5"/>
+      </g>
+      <g fill="#e8e3d8" font-size="11.5" font-weight="600" text-anchor="middle">
+        <text x="140" y="76">PPR</text>
+        <text x="200" y="168">Enterotoxemia</text>
+        <text x="260" y="76">FMD</text>
+        <text x="320" y="168">FMD booster</text>
+        <text x="380" y="76">Goat pox</text>
+        <text x="440" y="168">ET booster</text>
+        <text x="560" y="76">HS</text>
+      </g>
+      <g fill="#8b9099" font-size="10.5" text-anchor="middle">
+        <text x="140" y="92">3 mo, once</text>
+        <text x="200" y="182">3-4 mo</text>
+        <text x="260" y="92">3-4 mo</text>
+        <text x="320" y="182">+3-4 wks</text>
+        <text x="380" y="92">3-5 mo</text>
+        <text x="440" y="182">+3-4 wks</text>
+        <text x="560" y="92">3-4 mo, x2</text>
+      </g>
+      <g fill="#8b9099" font-size="11" text-anchor="middle">
+        <text x="60" y="140">0</text><text x="200" y="140">3 mo</text>
+        <text x="380" y="140">4-5 mo</text><text x="560" y="140">6 mo</text>
+      </g>
+      <text x="60" y="24" fill="#8b9099" font-size="11.5">Kids are colostrum-protected to about 3 months — nothing to give before then</text>
+      <text x="60" y="208" fill="#e8e3d8" font-size="12" font-weight="600">Deworm 15 days before every vaccination, or the vaccine underperforms.</text>
+    </svg>
+  </figure>
+  <table class="tb">
+    <tr><th>Disease</th><th>First dose</th><th>Booster / repeat</th><th>Route</th></tr>
+    <tr><td><b>PPR</b> (Peste des Petits Ruminants)</td><td>3 months, once</td><td>Every 3 years (ICAR guidance — some vets prefer annual; confirm locally)</td><td>1 ml, subcutaneous</td></tr>
+    <tr><td><b>Enterotoxemia (ET)</b></td><td>3–4 months</td><td>Booster 3–4 weeks after first dose, then every 6–12 months — ideally just before monsoon, when ET spreads hardest</td><td>Injection</td></tr>
+    <tr><td><b>FMD</b> (Foot & Mouth)</td><td>3–4 months</td><td>Booster 3–4 weeks after first dose, then every 6–12 months</td><td>Intramuscular — the only IM vaccine in this schedule</td></tr>
+    <tr><td><b>Goat pox</b></td><td>3–5 months</td><td>Booster 3–4 weeks after first dose, then annually</td><td>Injection</td></tr>
+    <tr><td><b>HS</b> (Haemorrhagic Septicemia)</td><td>3–4 months, two doses one month apart</td><td>Every 6–12 months</td><td>Injection</td></tr>
+    <tr><td>Anthrax</td><td>3–6 months</td><td>Annually</td><td>Injection</td></tr>
+  </table>
+  <p class="cap">This schedule is built around a kidding season of March–April or September–October, which is when most Indian goat calendars are timed. Deworm every animal at least 15 days before any vaccination — an undewormed gut suppresses the immune response, and a vaccine given into a wormy goat is a wasted vaccine. Confirm exact intervals with the District Animal Husbandry office; PPR guidance in particular varies between a 3-year and an annual booster depending on the source.</p>
+
+  <h3>7. What kills goats — mortality by cause</h3>
+  <table class="tb">
+    <tr><th>Cause</th><th>When</th><th>What you see</th><th>What to do</th></tr>
+    <tr><td><b>PPR</b></td><td>Any age, outbreaks common</td><td>High fever, discharge from eyes/nose, mouth ulcers, diarrhoea, pneumonia. Can kill 50–90% of an unvaccinated herd.</td><td>No cure. The vaccine is the entire defence — this is the one you cannot skip.</td></tr>
+    <tr><td><b>Enterotoxemia</b> ("overeating disease")</td><td>Sudden, often after a feed change</td><td>Found dead with little warning, or convulsions and bloating. Triggered by a sudden switch to rich feed — exactly the risk when moving a goat onto fresh hydroponic fodder too fast.</td><td>Vaccine plus gradual feed transitions over 4–5 days, same discipline as the poultry ration changes.</td></tr>
+    <tr><td><b>Coccidiosis and pneumonia in kids</b></td><td>Birth to 3 months</td><td>Scouring, weight loss, laboured breathing. This is where most kid mortality happens if you're breeding your own replacements.</td><td>Dry, well-drained bedding, colostrum within hours of birth, and don't crowd kids with adults.</td></tr>
+    <tr><td><b>Foot rot</b></td><td>Monsoon, wet flooring</td><td>Lameness, foul smell between the claws. Slatted platforms help enormously here versus solid wet floors.</td><td>Keep the platform dry and draining; trim hooves every 2–3 months.</td></tr>
+    <tr><td><b>Internal parasites (worms)</b></td><td>Ongoing, worse in monsoon</td><td>Pale gums, rough coat, weight loss, bottle jaw in severe cases.</td><td>Deworm every 3 months minimum, and always 15 days ahead of a vaccine.</td></tr>
+    <tr><td><b>Heat stress</b></td><td>April–June</td><td>Panting, reduced feed intake, slower weight gain.</td><td>Shade, airflow, and feeding in the cooler parts of the day — goats tolerate heat far better than poultry, but growth still slows.</td></tr>
+  </table>
+  <p class="cap">A 6% mortality assumption in the calculator above is realistic for weaned, growing stock bought in at 15 kg — kids you raise yourself from birth carry a materially higher risk, 15–25% before weaning, which is the main reason buying in weaned stock for fattening is the lower-risk way to start.</p>
+
+  <h3>8. New does — if you breed your own replacements instead of only fattening</h3>
+  <p>Everything above assumes you buy weaned kids and fatten them — no breeding herd of your own. If you'd rather raise your own replacement stock instead of buying every batch, the economics and the risks both change.</p>
+  <table class="tb">
+    <tr><th>Item</th><th>Detail</th></tr>
+    <tr><td>Buck ratio</td><td>1 buck per 20–25 does. More than that and conception rates drop; fewer is wasted feed on an animal that isn't earning.</td></tr>
+    <tr><td>Age at first kidding</td><td>Osmanabadi does can kid around 15–18 months if well grown. Breeding too early stunts the doe and produces a weak first kid.</td></tr>
+    <tr><td>Kidding interval</td><td>About 8 months between kiddings on Osmanabadi's fertility, so roughly 1.4–1.5 kiddings a year per doe — not the 2.3 kids/year figure, which already accounts for twinning within that rate.</td></tr>
+    <tr><td>Replacement rate</td><td>Cull and replace about 15–20% of does a year — age, poor mothering, low milk, repeated singles. A herd of 40 does needs 6–8 new doelings a year just to hold steady.</td></tr>
+    <tr><td>Raise vs buy a replacement</td><td>Raising your own doeling to breeding age costs roughly ₹290–350 in early feed but returns nothing for 15–18 months. Buying a proven, already-bred doe costs more upfront but starts earning immediately — same trade-off as buying point-of-lay hens instead of rearing chicks.</td></tr>
+  </table>
+  <p class="cap">Running a breeding herd alongside a fattening operation means two age groups and two management regimes sharing one platform — more complex, and it multiplies exactly the disease-mixing risk the poultry side is built to avoid with all-in-all-out. If you want the simpler business, buy weaned stock every cycle and skip breeding entirely; it's what the numbers above already assume.</p>
+
+  <h3>9. Daily routine</h3>
+  <table class="tb">
+    <tr><th>When</th><th>Task</th></tr>
+    <tr><td>Early morning</td><td>Check for lame or off-colour goats before feeding. Feed, refill water, scrape the platform.</td></tr>
+    <tr><td>Midday</td><td>Cut and deliver hydroponic fodder from the previous day's tray; seed a fresh tray on rotation.</td></tr>
+    <tr><td>Evening</td><td>Second feed, check hooves and coats on any goat standing apart from the group.</td></tr>
+    <tr><td>Weekly</td><td>Weigh a sample, check the fodder trays for mould, top up mineral licks.</td></tr>
+    <tr><td>Every batch</td><td>Record stock bought, deaths, feed used, sale weights and rates — the same discipline that makes the poultry side improve batch on batch.</td></tr>
+  </table>
+
+  <h3>10. Setup cost and payback</h3>
+  <p>The number that matters here depends on one question: are you building a shed from nothing, or converting the shed already costed on the Site &amp; Shed and Business Plan tabs? The platform and hydroponic figures used everywhere above assume the second — the shed shell already exists. Here is the full picture either way, and what removing the hydroponic unit costs you in both capex and profit.</p>
+
+  <table class="tb">
+    <tr><th>Item</th><th>Cost</th></tr>
+    <tr><td>Shed shell — structure, boundary wall, PCC floor (same build as the Business Plan tab)</td><td>₹4.30–5.13 L</td></tr>
+    <tr><td>Goat platform — slats, pens, feeders, scrape channel, quarantine pen</td><td>₹3,62,500</td></tr>
+    <tr><td>Hydroponic fodder unit, no powered cooler</td><td>₹2,14,000</td></tr>
+  </table>
+
+  <table class="tb">
+    <tr><th>Feed strategy</th><th>Hydro capex</th><th>Capex, shed exists</th><th>Net profit/yr</th><th>Payback</th></tr>
+    <tr><td>Bought feed only, no hydroponics</td><td>—</td><td>₹3,62,500</td><td>₹5,37,341</td><td>0.7 yrs</td></tr>
+    <tr><td>Small DIY supplement (~70kg/day)</td><td>₹38,080</td><td>₹4,00,580</td><td>₹6,62,339</td><td>0.6 yrs</td></tr>
+    <tr><td><b>Full DIY rig (~320kg/day)</b></td><td><b>₹1,58,000</b></td><td><b>₹5,20,500</b></td><td><b>₹7,78,909</b></td><td><b>0.7 yrs</b></td></tr>
+  </table>
+  <p class="cap">These figures are honest DIY builds — local steel fabrication and bulk trays, not a bought turnkey vendor system, which is where an earlier estimate of ₹2,14,000 for the full rig came from. The small supplement is genuinely cheap and pays back fastest, but only replaces a fifth of the ration per goat. Payback barely moves across all three, so the real decision is how much upfront cash you have, not which one returns more — the full rig earns more in absolute terms but ties up four times the capital to get there. Add the shed shell (₹4.30–5.13 L) to any of these if you're building from scratch rather than converting the existing shed.</p>
+  <p>At the default numbers above, this pays back in under a year — but that rests on the ₹350/₹425 buy-sell spread from your Nagpur table, which sits noticeably above the ₹230–315/kg range I found searching independently. Confirm one real quote from a trader before trusting the payback figure. It also assumes an extra hand at roughly ₹400/day, which is an estimate, not a quoted local rate.</p>
+
+  <h3>11. Before you place a single order</h3>
+  <ul class="risks">
+    <li>Get an actual buy quote and an actual sell quote from the same trader, for the same batch size — not two rates from two different conversations.</li>
+    <li>Confirm the trader can absorb your full batch size within your sale window — 26 goats a week if sold over four weeks.</li>
+    <li>Confirm the working capital — roughly ₹5.6 lakh — is genuinely available every cycle, not just for the first one.</li>
+    <li>Gram Panchayat NOC and District Animal Husbandry registration, same as the poultry side.</li>
+    <li>A named source for weaned Osmanabadi stock, with a second supplier as backup.</li>
+    <li>Decide fattening-only versus breeding before you build pens — retrofitting a breeding partition later is far costlier than planning it in.</li>
+  </ul>
+
+  <p class="foot">Breed, mortality and vaccination figures here are drawn from ICAR breed surveys and published Indian veterinary vaccination schedules. Farm results vary with management; confirm the vaccination calendar and current market rates with your District Animal Husbandry office and a local trader before committing capital.</p>
+</div>
+</section>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 
@@ -1433,8 +1660,156 @@ function render(){
 ['i-birds','i-chick','i-mort','i-wt','i-fpb','i-frate','i-price','i-lab','i-cyc']
   .forEach(id => $(id).addEventListener('input', render));
 
+/* ================= goat plan model ================= */
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const F = new Intl.NumberFormat('en-IN');
+const rs  = v => '₹' + F.format(Math.round(v));
+const CLEAN_DAYS = 15;
+const OTHER_PER_HEAD = 500;
+const EXTRA_RATE = 400;     // Rs/day for the on-demand extra hand - assumption, confirm locally
+const HELPER_MONTH = 12000;
+
+const HYDRO = {
+  none:  {capex:0,      feed:20,  daily:0,   perhead:0,   extra:0,  label:'No hydroponic unit — feed is fully bought concentrate.',
+          rows:[]},
+  small: {capex:38080,  feed:16.5,daily:70,  perhead:0.66, extra:0,  label:'Small DIY rig: a few dozen trays on a simple shelf — close to "just sprinklers and a shelf." Supplies about a fifth of the ration per goat.',
+          rows:[['56 trays @ ₹180','₹10,080'],['3-tier steel shelf, local welding','₹18,000'],['Hand-misting only — bucket and watering can','₹2,000'],['Basic shade cloth','₹8,000'],['TOTAL','₹38,080']]},
+  full:  {capex:158000, feed:12.9,daily:320, perhead:3.0,  extra:2.5,label:'Full DIY rig, locally fabricated — not a bought vendor "system." Replaces most of the ration per goat. Daily tray seeding/cutting at this scale is why the extra hand is assumed here.',
+          rows:[['256 trays @ ₹180 (bulk rate)','₹46,080'],['MS angle steel rack, 5-tier, local fabrication','₹55,000'],['Basic drip/sprinkler kit + timer','₹10,000'],['Open shade-net structure','₹35,000'],['Plumbing, sump, misc','₹12,000'],['TOTAL','₹1,58,000']]}
+};
+let hydroMode = 'full';
+
+
+function readGoat(){
+  return {
+    count:+$('gi-count').value, buyw:+$('gi-buyw').value, buyr:+$('gi-buyr').value,
+    sellw:+$('gi-sellw').value, sellr:+$('gi-sellr').value, days:+$('gi-days').value,
+    feed:+$('gi-feed').value, mort:+$('gi-mort').value, extra:+$('gi-extra').value
+  };
+}
+function model(v, buyrOverride, sellrOverride){
+  const buyr = buyrOverride == null ? v.buyr : buyrOverride;
+  const sellr = sellrOverride == null ? v.sellr : sellrOverride;
+  const cycleDays = v.days + CLEAN_DAYS;
+  const cycles = 365/cycleDays;
+  const buy = v.buyw*buyr;
+  const feed = v.feed*v.days;
+  const cost = buy+feed+OTHER_PER_HEAD;
+  const survFrac = 1-v.mort/100;
+  const rev = v.sellw*sellr*survFrac;
+  const margin = rev-cost;
+  return {cycleDays, cycles, buy, feed, cost, rev, margin,
+          headSold: v.count*survFrac,
+          kg: v.count*survFrac*v.sellw,
+          batchProfit: margin*v.count,
+          yrProfit: margin*v.count*cycles};
+}
+
+function bars(m, v){
+  const parts = [
+    ['Stock', m.buy, ''],
+    ['Feed', m.feed, 'd2'],
+    ['Meds/misc', OTHER_PER_HEAD, 'd3']
+  ];
+  return parts.map(([n,val,cls]) => {
+    const pc = val/m.cost*100;
+    return '<div class="bar"><i class="'+cls+'" style="width:'+pc.toFixed(1)+'%"></i>'+n+' '+pc.toFixed(0)+'%</div>';
+  }).join('');
+}
+
+function sensTable(v){
+  const sells=[350,400,450,500];
+  const buys=[280,320,360,400];
+  let h='<tr><th>Profit per batch</th>'+buys.map(b=>'<th>buy ₹'+b+'</th>').join('')+'</tr>';
+  sells.forEach(se=>{
+    h+='<tr><td>sell ₹'+se+'/kg</td>';
+    buys.forEach(b=>{
+      const r=model(v,b,se).batchProfit;
+      h+='<td class="'+(r>=0?'pos':'neg')+'">'+(r<0?'−':'')+rs(Math.abs(r)).slice(1)+'</td>';
+    });
+    h+='</tr>';
+  });
+  return h;
+}
+
+function render(){
+  const v=readGoat();
+  const m=model(v);
+
+  $('go-count').textContent=F.format(v.count);
+  $('go-buyw').textContent=v.buyw+' kg';
+  $('go-buyr').textContent='₹'+v.buyr;
+  $('go-sellw').textContent=v.sellw+' kg';
+  $('go-sellr').textContent='₹'+v.sellr;
+  $('go-days').textContent=v.days+' d';
+  $('go-feed').textContent='₹'+v.feed.toFixed(1);
+  $('go-mort').textContent=v.mort+'%';
+  $('go-extra').textContent=v.extra===0?'none':v.extra+' d/mo';
+
+  $('gs-margin').textContent=rs(m.margin);
+  $('gs-profit').textContent=rs(m.batchProfit);
+  const extraYr = EXTRA_RATE*v.extra*12;
+  const netYr = m.yrProfit - HELPER_MONTH*12 - extraYr;
+  $('gs-year').textContent=rs(netYr);
+  const platformCap = 1125*180+60000+45000+35000+20000;
+  const cap = platformCap + HYDRO[hydroMode].capex;
+  $('gs-payback').textContent=(cap/netYr).toFixed(1)+' yrs';
+
+  const h = HYDRO[hydroMode];
+  $('hydro-table').innerHTML = h.rows.length
+    ? h.rows.map(([k,val],i)=>'<tr'+(i===h.rows.length-1?' class="tot"':'')+'><td>'+k+'</td><td>'+val+'</td></tr>').join('')
+    : '<tr><td>No hydroponic capex — feed cost reverts to fully bought concentrate</td><td>₹0</td></tr>';
+  $('hydro-note').textContent = h.label + (h.daily>0 ? '  Output: ~'+h.daily+'kg/day, about '+h.perhead.toFixed(2)+'kg/goat/day.' : '');
+
+  $('gc-buy').textContent=rs(m.buy*v.count);
+  $('gc-feed').textContent=rs(m.feed*v.count);
+  $('gc-feednote').textContent='('+v.days+'d @ ₹'+v.feed.toFixed(1)+'/day)';
+  $('gc-other').textContent=rs(OTHER_PER_HEAD*v.count);
+  $('gc-total').textContent=rs(m.cost*v.count);
+  $('gbars').innerHTML=bars(m,v);
+
+  $('gr-head').textContent=F.format(Math.round(m.headSold));
+  $('gr-kg').textContent=F.format(Math.round(m.kg))+' kg';
+  $('gr-rev').textContent=rs(m.rev*v.count);
+  const pf=$('gr-profit'); pf.textContent=rs(m.batchProfit); pf.className=m.batchProfit>=0?'pos':'neg';
+  $('gr-perhead').textContent=rs(m.margin)+' per head';
+  $('gr-cycles').textContent=m.cycles.toFixed(2)+'/yr';
+  $('gr-yr-base').textContent=rs(m.yrProfit-HELPER_MONTH*12);
+  $('gr-yr-extra').textContent=rs(netYr);
+
+  $('gr-note').textContent =
+    'Working capital of '+rs(m.buy*v.count)+' is due again every '+m.cycleDays+' days. '+
+    'That is usually the harder constraint than the profit margin itself.';
+
+  $('gsens').innerHTML=sensTable(v);
+
+  $('gw-stock').textContent=rs(m.buy*v.count);
+  $('gw-cycle').textContent=m.cycleDays+' days';
+  $('gw-week4').textContent=Math.round(v.count/4)+' goats/week';
+  $('gw-week8').textContent=Math.round(v.count/8)+' goats/week';
+}
+
+['gi-count','gi-buyw','gi-buyr','gi-sellw','gi-sellr','gi-days','gi-feed','gi-mort','gi-extra']
+  .forEach(id => $(id).addEventListener('input', render));
+
+document.querySelectorAll('#seg-hydro button').forEach(b => {
+  b.addEventListener('click', () => {
+    hydroMode = b.dataset.hydro;
+    document.querySelectorAll('#seg-hydro button').forEach(o =>
+      o.setAttribute('aria-pressed', String(o === b)));
+    $('gi-feed').value = HYDRO[hydroMode].feed;
+    $('gi-extra').value = HYDRO[hydroMode].extra;
+    render();
+  });
+});
+
+render();
+})();
+
 /* ================= tabs ================= */
-const TABS = ['site','plan','bird'];
+const TABS = ['site','plan','bird','goat'];
 const MOBILE = () => window.innerWidth <= 860;
 let current = 'site';
 let railOpen = !MOBILE();          // open by default on desktop, closed on a phone
